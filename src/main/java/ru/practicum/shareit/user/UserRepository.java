@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import java.util.List;
-import java.util.Map;
 
 interface UserRepository {
     List<User> findAll();
