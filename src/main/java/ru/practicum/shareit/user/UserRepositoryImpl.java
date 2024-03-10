@@ -12,6 +12,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final Map<Long, User> users = new HashMap<>();
     private Long userId = 1L;
+
     @Override
     public List<User> findAll() {
         return new ArrayList<>(users.values());

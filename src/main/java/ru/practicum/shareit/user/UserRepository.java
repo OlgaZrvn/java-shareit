@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import java.util.List;
 
 interface UserRepository {
+
     List<User> findAll();
 
     User findById(Long id);
