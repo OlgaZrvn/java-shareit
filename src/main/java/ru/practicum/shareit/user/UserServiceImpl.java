@@ -34,14 +34,14 @@ class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(Long id, User user) {
-        validateUpdateEmail(user);
+        validateUpdateEmail(id, user);
         log.info("Обновление пользователя с id {}", id);
         return repository.update(id, user);
     }
 
     @Override
     public void deleteUser(Long id) {
-        userExists(id);
+        checkUser(id);
         log.info("Пользователь {} удален", getUserById(id).getName());
         repository.delete(getUserById(id));
     }
@@ -53,15 +53,15 @@ class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateUpdateEmail(User user) {
+    private void validateUpdateEmail(Long id, User user) {
         List<User> users = new ArrayList(repository.findAll());
-        users.remove(user);
-        if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
+        if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()) &&
+                !u.getId().equals(id))) {
             throw new Throwable("Пользователь с таким Email уже существует");
         }
     }
 
-    private void userExists(Long id) {
+    private void checkUser(Long id) {
         if (null == getUserById(id)) {
             log.error("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");

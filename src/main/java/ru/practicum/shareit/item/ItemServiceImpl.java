@@ -25,11 +25,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getAllItems() {
-        return itemRepository.getAllItems();
-    }
-
-    @Override
     public List<Item> getAllItemsUser(Long userId) {
         return itemRepository.getAllItemsUser(userId);
     }

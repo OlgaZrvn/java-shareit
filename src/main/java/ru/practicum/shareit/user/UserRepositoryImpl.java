@@ -32,8 +32,12 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User update(Long id, User user) {
         user.setId(id);
-        if (user.getName() != null) users.get(id).setName(user.getName());
-        if (user.getEmail() != null) users.get(id).setEmail(user.getEmail());
+        if (user.getName() != null) {
+            users.get(id).setName(user.getName());
+        }
+        if ((user.getEmail() != null) && (users.get(id).getEmail() != user.getEmail())) {
+            users.get(id).setEmail(user.getEmail());
+        }
         return users.get(id);
     }
 
@@ -41,13 +45,4 @@ public class UserRepositoryImpl implements UserRepository {
     public void delete(User user) {
         users.remove(user.getId(), user);
     }
-
-    private long getId() {
-        long lastId = users.values().stream()
-                .mapToLong(User::getId)
-                .max()
-                .orElse(0);
-        return lastId + 1;
-    }
-
 }

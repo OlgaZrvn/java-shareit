@@ -7,7 +7,6 @@ import java.util.List;
 
 public interface ItemRepository {
     Item saveItem(User user, Item item);
-    List<Item> getAllItems();
     List<Item> getAllItemsUser(Long userId);
     Item getItemById(Long id);
     Item updateItem(Long itemId, Item item);

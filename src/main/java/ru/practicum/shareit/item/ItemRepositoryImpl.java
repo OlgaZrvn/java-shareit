@@ -25,11 +25,6 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public List<Item> getAllItems() {
-        return new ArrayList<>(items.values());
-    }
-
-    @Override
     public List<Item> getAllItemsUser(Long userId) {
         List<Item> itemsOfUser = new ArrayList<>();
         for (Item item : items.values()) {

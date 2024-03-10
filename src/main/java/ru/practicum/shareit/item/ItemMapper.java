@@ -17,4 +17,3 @@ public interface ItemMapper {
  //   @Mapping(source = "available", target = "available")
     Item toItem(ItemDto itemDto);
 }
-
