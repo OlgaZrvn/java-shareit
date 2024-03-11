@@ -53,14 +53,17 @@ public class ItemServiceImpl implements ItemService {
 
     private void checkUser(Long id) {
         if (null == userRepository.findById(id)) {
-            log.error("Пользователь не найден");
+            log.error("Пользователь c id {} не найден", id);
             throw new NotFoundException("Пользователь не найден");
         }
     }
 
     private void checkOwner(Long userId, Long itemId) {
         if (!userRepository.findById(userId).equals(itemRepository.getItemById(itemId).getOwner())) {
-                throw new NotFoundException("Нельзя обновлять вещь через другого пользователя");
+            log.error("Пользователь {} не явлеется владельцем товара {}",
+                    userRepository.findById(userId).getName(),
+                    itemRepository.getItemById(itemId).getName());
+            throw new NotFoundException("Нельзя обновлять вещь через другого пользователя");
         }
     }
 }

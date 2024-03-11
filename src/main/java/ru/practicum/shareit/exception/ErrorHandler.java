@@ -29,7 +29,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus (code = HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
+    public ErrorResponse handleInternalErrorException(final InternalErrorException e) {
         log.info("Код ответа {}", HttpStatus.INTERNAL_SERVER_ERROR);
         return new ErrorResponse(
                 e.getMessage()

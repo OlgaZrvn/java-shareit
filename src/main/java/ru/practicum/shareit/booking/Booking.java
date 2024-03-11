@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -14,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Booking {
-    private String id;
-    private LocalDate start;
+    private Long id;
+    private LocalDateTime start;
     private LocalDateTime end;
     private String item;
     private String booker;

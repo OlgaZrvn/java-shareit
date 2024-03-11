@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.Status;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -15,8 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingDto {
-    private String id;
-    private LocalDate start;
+    private Long id;
+    private LocalDateTime start;
     private LocalDateTime end;
     private String item;
     private String booker;

@@ -3,8 +3,8 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.InternalErrorException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.Throwable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,7 @@ class UserServiceImpl implements UserService {
     private void validateEmail(User user) {
         List<User> users = new ArrayList(repository.findAll());
         if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            throw new Throwable("Пользователь с таким Email уже существует");
+            throw new InternalErrorException("Пользователь с таким Email уже существует");
         }
     }
 
@@ -57,7 +57,7 @@ class UserServiceImpl implements UserService {
         List<User> users = new ArrayList(repository.findAll());
         if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()) &&
                 !u.getId().equals(id))) {
-            throw new Throwable("Пользователь с таким Email уже существует");
+            throw new InternalErrorException("Пользователь с таким Email уже существует");
         }
     }
 
