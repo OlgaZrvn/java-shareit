@@ -13,5 +13,5 @@ public interface ItemService {
 
     Item updateItem(Long itemId, Long userId, Item item);
 
- //   List<Item> searchItems(String string);
+    List<Item> searchItems(String string);
 }

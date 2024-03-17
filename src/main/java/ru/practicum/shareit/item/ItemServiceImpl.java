@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,33 +36,48 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long id) {
-        return itemRepository.getReferenceById(id);
+        Item item =  itemRepository.findById(id).orElseThrow(() ->
+                new NotFoundException("Товар с id " + id + " не найден"));
+        return item;
     }
 
     @Override
     public Item updateItem(Long itemId, Long userId, Item item) {
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        item.setOwner(owner);
         checkOwner(userId, itemId);
-        item.setId(itemId);
-        if (item.getName() != null) item.setName(item.getName());
-        if (item.getDescription() != null) item.setDescription(item.getDescription());
-        if (item.getAvailable() != null) item.setAvailable(item.getAvailable());
+        Item updatedItem = new Item();
+        updatedItem.setOwner(owner);
+        updatedItem.setId(itemId);
+        if (item.getName() != null) {
+            updatedItem.setName(item.getName());
+        } else {
+            updatedItem.setName(itemRepository.getReferenceById(itemId).getName());
+        }
+        if (item.getDescription() != null) {
+            updatedItem.setDescription(item.getDescription());
+        } else {
+            updatedItem.setDescription(itemRepository.getReferenceById(itemId).getDescription());
+        }
+        if (item.getAvailable() != null) {
+            updatedItem.setAvailable(item.getAvailable());
+        } else {
+            updatedItem.setAvailable(itemRepository.getReferenceById(itemId).getAvailable());
+        }
         log.info("Товар с id {} обновлен", itemId);
-        return itemRepository.save(item);
+        return itemRepository.save(updatedItem);
     }
 
- /*   @Override
+    @Override
     public List<Item> searchItems(String string) {
         if (string.isBlank()) {
             return new ArrayList<>();
         } else {
-            return itemRepository.searchItems(string);
+            return itemRepository.searchItems(string.toUpperCase())
+                    .stream()
+                    .collect(Collectors.toList());
         }
     }
-
-  */
 
     private void checkUser(Long id) {
         if (null == userRepository.findById(id)) {

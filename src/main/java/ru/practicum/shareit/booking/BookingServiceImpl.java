@@ -9,4 +9,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
     BookingRepository bookingRepository;
+
+    @Override
+    public Booking saveBooking(Long itemId) {
+        Booking booking = new Booking();
+        return bookingRepository.save(booking);
+    }
 }

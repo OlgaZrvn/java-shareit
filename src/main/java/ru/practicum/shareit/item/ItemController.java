@@ -5,6 +5,7 @@ import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -41,7 +42,13 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemDto> getItemById(@PathVariable Long itemId) {
-        return ResponseEntity.ok().body(itemMapper.toItemDto(itemService.getItemById(itemId)));
+        Item item;
+        try {
+            item = itemService.getItemById(itemId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Товар с id " + itemId + " не найден");
+        }
+        return ResponseEntity.ok().body(itemMapper.toItemDto(item));
     }
 
     @GetMapping
@@ -52,13 +59,11 @@ public class ItemController {
                 .collect(Collectors.toList()));
     }
 
- /*   @GetMapping("/search")
+    @GetMapping("/search")
     public ResponseEntity<List<ItemDto>> searchAvailableItems(@RequestParam String text) {
         return ResponseEntity.ok().body(itemService.searchItems(text)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
     }
-
-  */
 }
