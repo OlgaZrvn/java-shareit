@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
@@ -34,7 +35,13 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
-        return ResponseEntity.ok().body(userMapper.toUserDto(userService.getUserById(userId)));
+        User user;
+        try {
+            user = userService.getUserById(userId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Пользователь с id " + userId + " не найден");
+        }
+        return ResponseEntity.ok().body(userMapper.toUserDto(user));
     }
 
     @PatchMapping("/{userId}")

@@ -52,11 +52,13 @@ public class ItemController {
                 .collect(Collectors.toList()));
     }
 
-    @GetMapping("/search")
+ /*   @GetMapping("/search")
     public ResponseEntity<List<ItemDto>> searchAvailableItems(@RequestParam String text) {
         return ResponseEntity.ok().body(itemService.searchItems(text)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
     }
+
+  */
 }
