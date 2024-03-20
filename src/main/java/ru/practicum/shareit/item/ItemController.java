@@ -5,8 +5,11 @@ import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
@@ -41,14 +44,15 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemDto> getItemById(@PathVariable Long itemId) {
+    public ResponseEntity<ItemResponse> getItemById(@PathVariable Long itemId,
+                                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
         Item item;
         try {
-            item = itemService.getItemById(itemId);
+            item = itemService.getItemById(itemId, userId);
         } catch (NotFoundException e) {
             throw new NotFoundException("Товар с id " + itemId + " не найден");
         }
-        return ResponseEntity.ok().body(itemMapper.toItemDto(item));
+        return ResponseEntity.ok().body(itemMapper.toItemResponse(item));
     }
 
     @GetMapping
@@ -65,5 +69,12 @@ public class ItemController {
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentResponse addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @RequestBody CommentDto commentDto,
+                                      @PathVariable("itemId") Long itemId) {
+        return itemService.addComment(userId, commentDto, itemId);
     }
 }

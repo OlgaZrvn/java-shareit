@@ -1,8 +1,10 @@
 package ru.practicum.shareit.user;
 
+import ru.practicum.shareit.user.model.User;
+
 import java.util.List;
 
-interface UserService {
+public interface UserService {
 
     User saveUser(User user);
 

@@ -2,27 +2,22 @@ package ru.practicum.shareit.booking.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.Status;
 
 import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class BookingDto {
     private Long id;
-    @NotNull
+    @NotNull(message = "Время начала бронирования не может быть пустым")
+    @FutureOrPresent(message = "Время начала бронирования не может быть в прошлом")
     private LocalDateTime start;
-    @Future
-    @NotNull
+    @NotNull(message = "Время окончания бронирования не может быть пустым")
+    @Future(message = "Время окончания бронирования не может быть в прошлом")
     private LocalDateTime end;
-    private String item;
-    private String booker;
-    private Status status;
+    @NotNull
+    private Long itemId;
 }

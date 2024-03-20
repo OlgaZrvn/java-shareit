@@ -1,20 +1,17 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "bookings")
 public class Booking {
@@ -26,13 +23,12 @@ public class Booking {
     @Column(name = "end_date")
     private LocalDateTime end;
     @ManyToOne
-    @JoinColumn(name = "item_id", nullable = false)
+    @JoinColumn(name = "item_id")
     private Item item;
     @ManyToOne
-    @JoinColumn(name = "booker_id", nullable = false)
+    @JoinColumn(name = "booker_id")
     private User booker;
-    @Enumerated(EnumType.STRING)
-    @Column (nullable = false)
+    @Enumerated()
     private Status status;
 }
 
