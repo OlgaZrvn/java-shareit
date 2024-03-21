@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
         if (bookingDto.getEnd().isBefore(bookingDto.getStart()) || bookingDto.getEnd() == bookingDto.getStart()) {
             throw new ValidationException("Время начала не может быть позже времени окончания бронирования");
         }
-        if (item.getOwner().getId() == userId) {
+        if (item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Пользователь с id " + userId + " является владельцем товара");
         }
         Booking booking = bookingMapper.toBooking(bookingDto);
@@ -65,7 +65,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse updateBooking(Long userId, Long bookingId, String approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new NotFoundException("Бронирование не найдено"));
-        if (booking.getItem().getOwner().getId() != userId) {
+        if (!booking.getItem().getOwner().getId().equals(userId)) {
             throw new NotFoundException("Пользователь с id " + userId + " не является владельцем товара");
         }
         if (booking.getStatus().equals(Status.APPROVED)) {
@@ -85,7 +85,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse getBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new NotFoundException("Бронирование не найдено"));
-        if (booking.getItem().getOwner().getId() != userId && booking.getBooker().getId() != userId) {
+        if (!booking.getItem().getOwner().getId().equals(userId) && !booking.getBooker().getId().equals(userId)) {
             throw new NotFoundException("Пользователь с id " + userId + " не является владельцем товара");
         }
         return bookingMapper.toBookingResponse(booking);

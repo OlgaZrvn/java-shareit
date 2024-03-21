@@ -61,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         ItemResponse itemResponse = itemMapper.toItemResponse(item);
-        if (user.getId() == item.getOwner().getId()) {
+        if (user.getId().equals(item.getOwner().getId())) {
             addLastAndNextBooking(itemResponse, userId);
         }
         List<Comment> commentList = commentRepository.findByItemId(itemId);
@@ -145,7 +145,7 @@ public class ItemServiceImpl implements ItemService {
         bookingRepository.findFirstByBookerIdAndItemIdAndEndBefore(userId, itemId, LocalDateTime.now())
                 .orElseThrow(() -> new ValidationException("Пользователь с id " + userId +
                         " ещё не брал в аренду этот товар"));
-        if (item.getOwner().getId() == userId) {
+        if (item.getOwner().getId().equals(userId)) {
             throw new ValidationException("Пользователь с id " + userId + " является владельцем");
         }
         Comment comment = new Comment();
@@ -153,7 +153,6 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(user);
         comment.setText(commentDto.getText());
         comment.setCreated(LocalDateTime.now());
-        // commentResponse.setAuthorName(user.getName());
         log.info("Добавлен отзыв");
         return commentMapper.toCommentResponse(commentRepository.save(comment));
     }
