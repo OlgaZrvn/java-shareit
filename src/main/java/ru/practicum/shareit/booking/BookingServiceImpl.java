@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BookingServiceImpl {
+public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingMapper bookingMapper;
 
-
+    @Override
     @Transactional
     public BookingResponse saveBooking(Long userId, BookingDto bookingDto, BindingResult bindingResult) {
         validation(bindingResult);
@@ -60,6 +60,7 @@ public class BookingServiceImpl {
         return bookingMapper.toBookingResponse(booking);
     }
 
+    @Override
     @Transactional
     public BookingResponse updateBooking(Long userId, Long bookingId, String approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
@@ -80,6 +81,7 @@ public class BookingServiceImpl {
         return bookingMapper.toBookingResponse(booking);
     }
 
+    @Override
     public BookingResponse getBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new NotFoundException("Бронирование не найдено"));
@@ -89,6 +91,7 @@ public class BookingServiceImpl {
         return bookingMapper.toBookingResponse(booking);
     }
 
+    @Override
     public List<BookingResponse> getAllBookings(Long userId, State state) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
@@ -98,13 +101,17 @@ public class BookingServiceImpl {
                 bookingList = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
                 break;
             case CURRENT:
-                bookingList = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
+                bookingList = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
+                        LocalDateTime.now(),
+                        LocalDateTime.now());
                 break;
             case PAST:
-                bookingList = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                bookingList = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId,
+                        LocalDateTime.now());
                 break;
             case FUTURE:
-                bookingList = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                bookingList = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,
+                        LocalDateTime.now());
                 break;
             case WAITING:
                 bookingList = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
@@ -118,6 +125,7 @@ public class BookingServiceImpl {
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
+    @Override
     public List<BookingResponse> getAllBookingByItemOwner(Long userId, State state) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));

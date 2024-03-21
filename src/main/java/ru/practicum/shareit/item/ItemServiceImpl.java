@@ -3,11 +3,12 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Comment;
-import ru.practicum.shareit.comment.CommentMapper;
+import ru.practicum.shareit.comment.CommentMapperNew;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
@@ -19,7 +20,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +28,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final ItemMapper itemMapper;
-    private final CommentMapper commentMapper;
-
+    private final CommentMapperNew commentMapper;
 
     @Override
     @Transactional
@@ -65,7 +65,10 @@ public class ItemServiceImpl implements ItemService {
             addLastAndNextBooking(itemResponse, userId);
         }
         List<Comment> commentList = commentRepository.findByItemId(itemId);
-        itemResponse.setComments(commentList.stream().map(commentMapper::toCommentResponse).collect(Collectors.toList()));
+        itemResponse.setComments(commentList
+                .stream()
+                .map(commentMapper::toCommentResponse)
+                .collect(Collectors.toList()));
         return itemResponse;
     }
 
@@ -76,8 +79,6 @@ public class ItemServiceImpl implements ItemService {
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         checkOwner(userId, itemId);
         ItemResponse updatedItem = getItemById(itemId, userId);
-    //    updatedItem.setOwner(owner);
-    //    updatedItem.setId(itemId);
         if (item.getName() != null) {
             updatedItem.setName(item.getName());
         } else {
@@ -143,7 +144,7 @@ public class ItemServiceImpl implements ItemService {
                 new NotFoundException("Пользователяс id " + userId + " не найден"));
         bookingRepository.findFirstByBookerIdAndItemIdAndEndBefore(userId, itemId, LocalDateTime.now())
                 .orElseThrow(() -> new ValidationException("Пользователь с id " + userId +
-                        " ещё не брал в аренду этот предмет"));
+                        " ещё не брал в аренду этот товар"));
         if (item.getOwner().getId() == userId) {
             throw new ValidationException("Пользователь с id " + userId + " является владельцем");
         }
@@ -152,9 +153,9 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(user);
         comment.setText(commentDto.getText());
         comment.setCreated(LocalDateTime.now());
-        commentRepository.save(comment);
+        // commentResponse.setAuthorName(user.getName());
         log.info("Добавлен отзыв");
-        return commentMapper.toCommentResponse(comment);
+        return commentMapper.toCommentResponse(commentRepository.save(comment));
     }
 
     private void checkOwner(Long userId, Long itemId) {
