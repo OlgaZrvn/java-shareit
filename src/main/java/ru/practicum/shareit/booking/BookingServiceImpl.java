@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.dto.BookingResponse;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -90,7 +89,7 @@ public class BookingServiceImpl {
         return bookingMapper.toBookingResponse(booking);
     }
 
-    public List<BookingResponse> getBookingList(Long userId, State state) {
+    public List<BookingResponse> getAllBookings(Long userId, State state) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         List<Booking> bookingList;
@@ -119,7 +118,7 @@ public class BookingServiceImpl {
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
-    public List<BookingResponse> getBookingListByItemOwner(Long userId, State state) {
+    public List<BookingResponse> getAllBookingByItemOwner(Long userId, State state) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         List<Booking> bookingList;
@@ -128,7 +127,8 @@ public class BookingServiceImpl {
                 bookingList = bookingRepository.findAllByItemOwnerOrderByStartDesc(user);
                 break;
             case CURRENT:
-                bookingList = bookingRepository.findAllByItemOwnerAndStartBeforeAndEndAfterOrderByStartDesc(user, LocalDateTime.now(), LocalDateTime.now());
+                bookingList = bookingRepository.findAllByItemOwnerAndStartBeforeAndEndAfterOrderByStartDesc(user,
+                        LocalDateTime.now(), LocalDateTime.now());
                 break;
             case PAST:
                 bookingList = bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(user, LocalDateTime.now());
