@@ -29,7 +29,7 @@ public class BookingController {
     @PatchMapping("{bookingId}")
     public ResponseEntity<BookingResponse> updateBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                         @PathVariable("bookingId") Long bookingId,
-                                        @RequestParam String approved) {
+                                        @RequestParam Boolean approved) {
         return ResponseEntity.ok().body(bookingService.updateBooking(userId, bookingId, approved));
     }
 

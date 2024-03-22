@@ -37,20 +37,11 @@ public class BookingServiceImpl implements BookingService {
         validation(bindingResult);
         Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() ->
                 new NotFoundException("Товар не найден"));
-        if (!item.getAvailable()) {
-            throw new ValidationException("Товар недоступен для бронирования");
-        }
+        isAvailable(item);
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь не найден"));
-        if (bookingDto.getStart().equals(bookingDto.getEnd())) {
-            throw new ValidationException("Время начала не может быть равно времени окончания бронирования");
-        }
-        if (bookingDto.getEnd().isBefore(bookingDto.getStart()) || bookingDto.getEnd() == bookingDto.getStart()) {
-            throw new ValidationException("Время начала не может быть позже времени окончания бронирования");
-        }
-        if (item.getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Пользователь с id " + userId + " является владельцем товара");
-        }
+        checkBookingTime(bookingDto);
+        checkOwner(userId, item);
         Booking booking = bookingMapper.toBooking(bookingDto);
         booking.setItem(item);
         booking.setBooker(user);
@@ -62,7 +53,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponse updateBooking(Long userId, Long bookingId, String approved) {
+    public BookingResponse updateBooking(Long userId, Long bookingId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new NotFoundException("Бронирование не найдено"));
         if (!booking.getItem().getOwner().getId().equals(userId)) {
@@ -71,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getStatus().equals(Status.APPROVED)) {
             throw new ValidationException("Бронирование уже одобрено");
         }
-        if (approved.equals("true")) {
+        if (approved) {
             booking.setStatus(Status.APPROVED);
         } else {
             booking.setStatus(Status.REJECTED);
@@ -93,7 +84,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingResponse> getAllBookings(Long userId, State state) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         List<Booking> bookingList;
         switch (state) {
@@ -165,6 +156,27 @@ public class BookingServiceImpl implements BookingService {
                         .append(error.getDefaultMessage()).append(";");
             }
             throw new ValidationException(errorMsg.toString());
+        }
+    }
+
+    public static void isAvailable(Item item) {
+        if (!item.getAvailable()) {
+            throw new ValidationException("Товар недоступен для бронирования");
+        }
+    }
+
+    public static void checkBookingTime(BookingDto bookingDto) {
+        if (bookingDto.getStart().equals(bookingDto.getEnd())) {
+            throw new ValidationException("Время начала не может быть равно времени окончания бронирования");
+        }
+        if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
+            throw new ValidationException("Время начала не может быть позже времени окончания бронирования");
+        }
+    }
+
+    public static void checkOwner(Long userId, Item item) {
+        if (item.getOwner().getId().equals(userId)) {
+            throw new NotFoundException("Пользователь с id " + userId + " является владельцем товара");
         }
     }
 }

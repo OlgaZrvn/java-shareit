@@ -10,7 +10,7 @@ public interface BookingService {
 
     BookingResponse saveBooking(Long userId, BookingDto bookingDto, BindingResult bindingResult);
 
-    BookingResponse updateBooking(Long userId, Long bookingId, String approved);
+    BookingResponse updateBooking(Long userId, Long bookingId, Boolean approved);
 
     BookingResponse getBookingById(Long bookingId, Long userId);
 
