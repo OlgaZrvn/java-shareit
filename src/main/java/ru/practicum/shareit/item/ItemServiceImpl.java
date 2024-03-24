@@ -14,9 +14,7 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemBooking;
-import ru.practicum.shareit.item.dto.ItemDto2;
-import ru.practicum.shareit.item.dto.ItemResponse;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -40,13 +38,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemResponse saveItem(Long userId, Item item) {
+    public ItemResponse2 saveItem(Long userId, ItemDto2 itemDto2) {
         log.info("Проверяем пользователя с id {}", userId);
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
+        Item item = itemMapper.toItem(itemDto2);
         item.setOwner(owner);
+        ItemResponse2 itemResponse = itemMapper.toItemResponse2(itemRepository.save(item));
+        if (itemDto2.getRequestId() != null) {
+            itemResponse.setRequestId(itemDto2.getRequestId());
+        }
         log.info("Создан новый товар {}", item.getName());
-        return itemMapper.toItemResponse(itemRepository.save(item));
+        return itemResponse;
     }
 
     @Override
@@ -105,9 +108,7 @@ public class ItemServiceImpl implements ItemService {
         if (string.isBlank()) {
             return new ArrayList<>();
         } else {
-            return itemRepository.searchItems(string.toUpperCase())
-                    .stream()
-                    .collect(Collectors.toList());
+            return itemRepository.searchItems(string.toUpperCase());
         }
     }
 
@@ -160,8 +161,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto2> getItemsByRequestId(Long requestId) {
-        List<ItemDto2> items = itemRepository.findByRequestId(requestId);
-        return items;
+        return itemRepository.findByRequestId(requestId);
     }
 
     private void checkOwner(Long userId, Long itemId) {

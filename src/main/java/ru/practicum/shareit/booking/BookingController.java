@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -10,11 +9,9 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponse;
 
 import javax.validation.Valid;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Validated
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/bookings")

@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.item.dto.ItemResponse;
+import ru.practicum.shareit.item.dto.ItemResponse2;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
@@ -28,10 +30,9 @@ public class ItemController {
     private final ItemMapper itemMapper;
 
     @PostMapping
-    public ResponseEntity<ItemResponse> createNewItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @Valid @RequestBody ItemDto itemDto) {
-        Item item = itemMapper.toItem(itemDto);
-        return ResponseEntity.ok().body(itemService.saveItem(userId, item));
+    public ResponseEntity<ItemResponse2> createNewItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                       @Valid @RequestBody ItemDto2 itemDto2) {
+        return ResponseEntity.ok().body(itemService.saveItem(userId, itemDto2));
     }
 
     @PatchMapping("/{itemId}")

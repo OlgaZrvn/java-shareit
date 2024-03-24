@@ -124,6 +124,7 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
+        log.info("Получен список всех бронирований");
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
@@ -161,6 +162,7 @@ public class BookingServiceImpl implements BookingService {
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
+        log.info("Получен список всех бронирований пользователя с id {}", userId);
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
@@ -183,6 +185,18 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public static void checkBookingTime(BookingDto bookingDto) {
+        if (bookingDto.getStart() == null) {
+            throw new ValidationException("Время начала бронирования не может быть пустым");
+        }
+        if (bookingDto.getEnd() == null) {
+            throw new ValidationException("Время окончания бронирования не может быть пустым");
+        }
+        if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время начала бронирования не может быть в прошлом");
+        }
+        if (bookingDto.getEnd().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время окончания бронирования не может быть в прошлом");
+        }
         if (bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new ValidationException("Время начала не может быть равно времени окончания бронирования");
         }

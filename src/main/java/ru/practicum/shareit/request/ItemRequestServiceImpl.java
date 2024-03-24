@@ -6,17 +6,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemDto2;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponse;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +28,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository repository;
     private final UserRepository userRepository;
+    private final ItemService itemService;
     private final ItemRequestMapper mapper;
 
     @Override
+    @Transactional
     public ItemRequestDto saveItemRequest(Long userId, ItemRequestDto itemRequestDto) {
         checkUser(userId);
         ItemRequest itemRequest = mapper.toItemRequest(itemRequestDto);
@@ -46,8 +46,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<ItemRequestResponse> getAllUserItemRequests(Long userId) {
         checkUser(userId);
-        return repository.findByRequestorId(userId).stream().map(x ->
-                getItemRequestById(x.getId(), userId)).collect(Collectors.toList());
+        List<ItemRequest> itemRequestList = repository.findAllByRequestorId(userId);
+        log.info("Получен список запросов пользователя с id {}", userId);
+        return itemRequestList
+                .stream()
+                .map(mapper::toItemRequestResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -57,7 +61,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new ValidationException("Неверный from или size");
         }
         PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "created"));
-        return repository.findAllByRequestorIdNotOrderByCreatedDesc(userId, page));
+        List<ItemRequest> itemRequestList = repository.findAllByRequestorIdNotOrderByCreatedDesc(userId, page);
+        log.info("Получен список всех запросов");
+        return itemRequestList
+                .stream()
+                .map(mapper::toItemRequestResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -65,7 +74,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         checkUser(userId);
         ItemRequest itemRequest = repository.findById(requestId).orElseThrow(() ->
                 new NotFoundException("Запрос с id " + requestId + " не найден"));
-        return mapper.toItemRequestResponse(itemRequest);
+        ItemRequestResponse itemRequestResponse = mapper.toItemRequestResponse(itemRequest);
+        itemRequestResponse.setItems(itemService.getItemsByRequestId(requestId));
+        log.info("Получен запрос с id {}", requestId);
+        return itemRequestResponse;
+
     }
 
     private void checkUser(Long userId) {

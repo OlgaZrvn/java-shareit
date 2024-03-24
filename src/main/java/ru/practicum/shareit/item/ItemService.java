@@ -4,12 +4,13 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.item.dto.ItemResponse;
+import ru.practicum.shareit.item.dto.ItemResponse2;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
 public interface ItemService {
-    ItemResponse saveItem(Long userId, Item item);
+    ItemResponse2 saveItem(Long userId, ItemDto2 itemDto2);
 
     List<ItemResponse> getAllItemsUser(Long userId);
 

@@ -3,9 +3,7 @@ package ru.practicum.shareit.request.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDto2;
-import ru.practicum.shareit.item.dto.ItemResponse;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
