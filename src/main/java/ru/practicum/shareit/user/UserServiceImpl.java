@@ -3,10 +3,10 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.InternalErrorException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -16,8 +16,9 @@ class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
     @Override
+    @Transactional
     public User saveUser(User user) {
-        validateEmail(user);
+        user.setId(user.getId());
         log.info("Создан новый пользователь {}", user.getName());
         return repository.save(user);
     }
@@ -29,14 +30,31 @@ class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        return repository.findById(id);
+        User user = repository.findById(id).orElseThrow(() ->
+                new NotFoundException("Пользователь с id " + id + " не найден"));
+        return user;
     }
 
     @Override
+    @Transactional
     public User updateUser(Long id, User user) {
-        validateUpdateEmail(id, user);
+        User updatedUser = new User();
+        updatedUser.setId(id);
+
+        if (user.getName() != null) {
+            updatedUser.setName(user.getName());
+        } else {
+            updatedUser.setName(repository.getReferenceById(id).getName());
+        }
+
+        if (user.getEmail() != null) {
+            updatedUser.setEmail(user.getEmail());
+        } else {
+            updatedUser.setEmail(repository.getReferenceById(id).getEmail());
+        }
+
         log.info("Обновление пользователя с id {}", id);
-        return repository.update(id, user);
+        return repository.save(updatedUser);
     }
 
     @Override
@@ -44,21 +62,6 @@ class UserServiceImpl implements UserService {
         checkUser(id);
         log.info("Пользователь {} удален", getUserById(id).getName());
         repository.delete(getUserById(id));
-    }
-
-    private void validateEmail(User user) {
-        List<User> users = new ArrayList(repository.findAll());
-        if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()))) {
-            throw new InternalErrorException("Пользователь с таким Email уже существует");
-        }
-    }
-
-    private void validateUpdateEmail(Long id, User user) {
-        List<User> users = new ArrayList(repository.findAll());
-        if (users.stream().anyMatch(u -> u.getEmail().equals(user.getEmail()) &&
-                !u.getId().equals(id))) {
-            throw new InternalErrorException("Пользователь с таким Email уже существует");
-        }
     }
 
     private void checkUser(Long id) {

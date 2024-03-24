@@ -1,18 +1,18 @@
 package ru.practicum.shareit.item;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "available", target = "available")
+    Item toItem(ItemDto itemDto);
+
     ItemDto toItemDto(Item item);
 
-    @Mapping(source = "name", target = "name")
-    Item toItem(ItemDto itemDto);
+    Item toItem(ItemResponse itemResponse);
+
+    ItemResponse toItemResponse(Item item);
 }
