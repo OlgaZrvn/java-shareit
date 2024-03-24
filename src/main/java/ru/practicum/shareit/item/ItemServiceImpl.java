@@ -15,6 +15,7 @@ import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemBooking;
+import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -155,6 +156,12 @@ public class ItemServiceImpl implements ItemService {
         comment.setCreated(LocalDateTime.now());
         log.info("Добавлен отзыв");
         return commentMapper.toCommentResponse(commentRepository.save(comment));
+    }
+
+    @Override
+    public List<ItemDto2> getItemsByRequestId(Long requestId) {
+        List<ItemDto2> items = itemRepository.findByRequestId(requestId);
+        return items;
     }
 
     private void checkOwner(Long userId, Long itemId) {
