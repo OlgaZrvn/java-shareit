@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -91,10 +92,10 @@ public class BookingServiceImpl implements BookingService {
         if (from < 0 || size < 0) {
             throw new ValidationException("Неверный from или size");
         }
-        PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "start"));
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(DESC, "start"));
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        List<Booking> bookingList;
+        Page<Booking> bookingList;
         switch (state) {
             case ALL:
                 bookingList = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page);
@@ -133,10 +134,10 @@ public class BookingServiceImpl implements BookingService {
         if (from < 0 || size < 0) {
             throw new ValidationException("Неверный from или size");
         }
-        PageRequest page = PageRequest.of(from, size, Sort.by(DESC, "start"));
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(DESC, "start"));
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        List<Booking> bookingList;
+        Page<Booking> bookingList;
         switch (state) {
             case ALL:
                 bookingList = bookingRepository.findAllByItemOwnerOrderByStartDesc(user, page);

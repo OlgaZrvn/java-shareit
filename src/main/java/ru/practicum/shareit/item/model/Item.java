@@ -35,4 +35,11 @@ public class Item {
         this.description = description;
         this.available = available;
     }
+
+    public Item(String name, String description, Boolean available, User owner) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.owner = owner;
+    }
 }

@@ -36,7 +36,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<ItemResponse> updateItem(@PathVariable Long itemId,
+    public ResponseEntity<ItemResponse2> updateItem(@PathVariable Long itemId,
                                                    @NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
                                                    @RequestBody ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
@@ -44,19 +44,23 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemResponse> getItemById(@PathVariable Long itemId,
+    public ResponseEntity<ItemResponse2> getItemById(@PathVariable Long itemId,
                                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(itemService.getItemById(itemId, userId));
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemResponse>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ResponseEntity.ok().body(itemService.getAllItemsUser(userId));
+    public ResponseEntity<List<ItemResponse2>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                               @RequestParam(defaultValue = "0") Integer from,
+                                                               @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return ResponseEntity.ok().body(itemService.getAllItemsUser(userId, from, size));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text) {
-        return ResponseEntity.ok().body(itemService.searchItems(text)
+    public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text,
+                                                     @RequestParam(defaultValue = "0") Integer from,
+                                                     @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return ResponseEntity.ok().body(itemService.searchItems(text, from, size)
                 .stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList()));
