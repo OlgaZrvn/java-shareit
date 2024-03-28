@@ -2,23 +2,24 @@ package ru.practicum.shareit.request;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponse;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @UtilityClass
 public class ItemRequestMapperNew {
 
-    public static ItemRequest toItemRequest(ItemRequestDto request){
+    @Autowired
+    private UserService userService;
+
+    public static ItemRequest toItemRequest(ItemRequestDto request) {
         return new ItemRequest(
                 request.getId(),
                 request.getDescription(),
-                null,
+                userService.getUserById(request.getRequestorId()),
                 LocalDateTime.now());
     }
 
@@ -40,7 +41,7 @@ public class ItemRequestMapperNew {
         return new ItemRequest(
                 request.getId(),
                 request.getDescription(),
-                null,
+                userService.getUserById(request.getRequestorId()),
                 LocalDateTime.now());
     }
 

@@ -11,7 +11,6 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -19,7 +18,6 @@ import ru.practicum.shareit.request.dto.ItemRequestResponse;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,7 +32,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository repository;
     private final UserRepository userRepository;
-    private final ItemService itemService;
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
 
@@ -43,7 +40,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public ItemRequestDto saveItemRequest(Long userId, ItemRequestDto itemRequestDto) {
         checkUser(userId);
         ItemRequest itemRequest = ItemRequestMapperNew.toItemRequest(itemRequestDto);
-    //    itemRequest.setRequestor(userRepository.getReferenceById(itemRequestDto.getRequestorId()));
+        itemRequest.setRequestor(userRepository.getReferenceById(userId));
         repository.save(itemRequest);
         log.info("Создан новый запрос");
         return ItemRequestMapperNew.toItemRequestDto(itemRequest);

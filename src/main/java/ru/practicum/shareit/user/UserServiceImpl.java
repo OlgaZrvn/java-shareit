@@ -19,7 +19,7 @@ class UserServiceImpl implements UserService {
     @Transactional
     public User saveUser(User user) {
         user.setId(user.getId());
-        log.info("Создан новый пользователь {}", user.getName());
+        log.info("Создан новый пользователь {} c id {}", user.getName(), user.getId());
         return repository.save(user);
     }
 
@@ -32,6 +32,7 @@ class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         User user = repository.findById(id).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + id + " не найден"));
+        log.info("Получен пользователь {} c id {}", user.getName(), user.getId());
         return user;
     }
 

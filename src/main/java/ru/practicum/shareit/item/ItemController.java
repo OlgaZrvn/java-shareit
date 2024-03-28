@@ -9,7 +9,6 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDto2;
-import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.dto.ItemResponse2;
 import ru.practicum.shareit.item.model.Item;
 

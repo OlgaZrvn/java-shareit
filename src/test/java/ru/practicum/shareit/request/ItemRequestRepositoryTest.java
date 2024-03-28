@@ -38,7 +38,7 @@ class ItemRequestRepositoryTest {
     void testOneItemRequestByRequestorId() {
         User user = new User("user@ya.ru", "User1");
         userRepository.save(user);
-        ItemRequest itemRequest = new ItemRequest( "Request1", user, LocalDateTime.now());
+        ItemRequest itemRequest = new ItemRequest("Request1", user, LocalDateTime.now());
         repository.save(itemRequest);
         List<ItemRequest> itemRequests = repository.findAllByRequestorId(user.getId());
         assertEquals(1, itemRequests.size());
@@ -54,6 +54,7 @@ class ItemRequestRepositoryTest {
     @Test
     void testOneItemRequest() {
         User user = new User("user@ya.ru", "User1");
+        userRepository.save(user);
         ItemRequest itemRequest = new ItemRequest(1L, "Request1", user, LocalDateTime.now());
         itemRequest.setRequestor(user);
         repository.save(itemRequest);

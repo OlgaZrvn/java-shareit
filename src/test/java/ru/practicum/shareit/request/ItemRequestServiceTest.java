@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.request;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.ItemMapperImpl;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -13,33 +14,27 @@ import ru.practicum.shareit.user.model.User;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class BookingServiceTest {
+class ItemRequestServiceTest {
 
-    private BookingService bookingService;
+    private ItemRequestService itemRequestService;
 
     @Mock
-    BookingRepository bookingRepository;
-
+    ItemRequestRepository repository;
+    @Mock
+    UserRepository userRepository;
     @Mock
     ItemRepository itemRepository;
 
-    @Mock
-    UserRepository userRepository;
-
-    @BeforeEach void setUp() {
-        bookingService = new BookingServiceImpl(bookingRepository, itemRepository, userRepository,
-                new BookingMapperImpl());
+    @BeforeEach
+    void setUp() {
+        itemRequestService = new ItemRequestServiceImpl(repository, userRepository, itemRepository, new ItemMapperImpl());
     }
 
     @Test
-    void testNotFindBookingById() {
+    void testNotFindItemRequestById() {
         User user = new User("user@ya.ru", "User1");
         userRepository.save(user);
-        assertThrows(NotFoundException.class, () ->  bookingService.getBookingById(user.getId(), 0L));
+        assertThrows(NotFoundException.class, () ->  itemRequestService.getItemRequestById(0L, user.getId()));
     }
 
-    @Test
-    void testFindOneBookingById() {
-
-    }
 }

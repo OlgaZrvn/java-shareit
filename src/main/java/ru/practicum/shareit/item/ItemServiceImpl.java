@@ -24,7 +24,6 @@ import ru.practicum.shareit.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -176,7 +175,7 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
-    private void checkOwner(Long userId, Long itemId) {
+    void checkOwner(Long userId, Long itemId) {
         if (!userRepository.getReferenceById(userId).equals(itemRepository.getReferenceById(itemId).getOwner())) {
             log.error("Пользователь {} не явлеется владельцем товара {}",
                     userRepository.getReferenceById(userId).getName(),
