@@ -9,7 +9,7 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDto2;
-import ru.practicum.shareit.item.dto.ItemResponse2;
+import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.validation.Valid;
@@ -29,29 +29,29 @@ public class ItemController {
     private final ItemMapper itemMapper;
 
     @PostMapping
-    public ResponseEntity<ItemResponse2> createNewItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                       @Valid @RequestBody ItemDto2 itemDto2) {
+    public ResponseEntity<ItemResponse> createNewItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                      @Valid @RequestBody ItemDto2 itemDto2) {
         return ResponseEntity.ok().body(itemService.saveItem(userId, itemDto2));
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<ItemResponse2> updateItem(@PathVariable Long itemId,
-                                                    @NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                    @RequestBody ItemDto itemDto) {
+    public ResponseEntity<ItemResponse> updateItem(@PathVariable Long itemId,
+                                                   @NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                   @RequestBody ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
         return ResponseEntity.ok().body(itemService.updateItem(itemId, userId, item));
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<ItemResponse2> getItemById(@PathVariable Long itemId,
-                                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ResponseEntity<ItemResponse> getItemById(@PathVariable Long itemId,
+                                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(itemService.getItemById(itemId, userId));
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemResponse2>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                               @RequestParam(defaultValue = "0") Integer from,
-                                                               @RequestParam(required = false, defaultValue = "10") Integer size) {
+    public ResponseEntity<List<ItemResponse>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                              @RequestParam(defaultValue = "0") Integer from,
+                                                              @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity.ok().body(itemService.getAllItemsUser(userId, from, size));
     }
 

@@ -2,11 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto2;
-import ru.practicum.shareit.item.dto.ItemResponse2;
+import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemMapperNew {
@@ -30,8 +27,8 @@ public class ItemMapperNew {
         );
     }
 
-    public static ItemResponse2 toItemResponse(Item item) {
-        return new ItemResponse2(
+    public static ItemResponse toItemResponse(Item item) {
+        return new ItemResponse(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
@@ -40,22 +37,12 @@ public class ItemMapperNew {
         );
     }
 
-    public static Item toItem(ItemResponse2 ItemResponse) {
+    public static Item toItem(ItemResponse itemResponse) {
         return new Item(
-                ItemResponse.getId(),
-                ItemResponse.getName(),
-                ItemResponse.getDescription(),
-                ItemResponse.getAvailable()
+                itemResponse.getId(),
+                itemResponse.getName(),
+                itemResponse.getDescription(),
+                itemResponse.getAvailable()
         );
-    }
-
-    public static List<ItemDto2> toItemDtos(List<Item> items) {
-        return items
-                .stream()
-                .map(ItemMapperNew::toItemDto).collect(Collectors.toList());
-    }
-
-    public static List<ItemResponse2> toItemResponses(List<Item> items) {
-        return items.stream().map(ItemMapperNew::toItemResponse).collect(Collectors.toList());
     }
 }

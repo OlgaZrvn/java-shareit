@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @Slf4j
@@ -39,18 +38,19 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
-    private final CommentMapperNew commentMapper;
     private final ItemMapper itemMapper;
+    private final CommentMapperNew commentMapper;
+
 
     @Override
     @Transactional
-    public ItemResponse2 saveItem(Long userId, ItemDto2 itemDto2) {
+    public ItemResponse saveItem(Long userId, ItemDto2 itemDto2) {
         log.info("Проверяем пользователя с id {}", userId);
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         Item item = itemMapper.toItem(itemDto2);
         item.setOwner(owner);
-        ItemResponse2 itemResponse = itemMapper.toItemResponse2(itemRepository.save(item));
+        ItemResponse itemResponse = itemMapper.toItemResponse(itemRepository.save(item));
         if (itemDto2.getRequestId() != null) {
             item.setRequest(itemRequestRepository.getReferenceById(itemDto2.getRequestId()));
             itemResponse.setRequestId(itemDto2.getRequestId());
@@ -60,19 +60,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponse2> getAllItemsUser(Long userId, Integer from, Integer size) {
+    public List<ItemResponse> getAllItemsUser(Long userId, Integer from, Integer size) {
         PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
         return itemRepository.findByOwnerId(userId, page).stream().map(x ->
                 getItemById(x.getId(), userId)).collect(toList());
     }
 
     @Override
-    public ItemResponse2 getItemById(Long itemId, Long userId) {
+    public ItemResponse getItemById(Long itemId, Long userId) {
         Item item =  itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Товар с id " + itemId + " не найден"));
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        ItemResponse2 itemResponse = itemMapper.toItemResponse2(item);
+        ItemResponse itemResponse = itemMapper.toItemResponse(item);
         if (user.getId().equals(item.getOwner().getId())) {
             addLastAndNextBooking(itemResponse, userId);
         }
@@ -89,11 +89,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemResponse2 updateItem(Long itemId, Long userId, Item item) {
+    public ItemResponse updateItem(Long itemId, Long userId, Item item) {
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         checkOwner(userId, itemId);
-        ItemResponse2 updatedItem = getItemById(itemId, userId);
+        ItemResponse updatedItem = getItemById(itemId, userId);
         if (item.getName() != null) {
             updatedItem.setName(item.getName());
         } else {
@@ -126,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private void addLastAndNextBooking(ItemResponse2 item, Long ownerId) {
+    private void addLastAndNextBooking(ItemResponse item, Long ownerId) {
         Booking lastBooking = bookingRepository
                 .findFirstByItemIdAndItemOwnerIdAndStartBeforeAndStatusOrderByStartDesc(
                         item.getId(),
@@ -171,13 +171,6 @@ public class ItemServiceImpl implements ItemService {
         comment.setCreated(LocalDateTime.now());
         log.info("Добавлен отзыв");
         return commentMapper.toCommentResponse(commentRepository.save(comment));
-    }
-
-    public List<ItemDto2> getItemsByRequestId(Long requestId) {
-        return itemRepository.findByRequestId(requestId, Sort.by(DESC, "id"))
-                .stream()
-                .map(ItemMapperNew::toItemDto)
-                .collect(toList());
     }
 
     void checkOwner(Long userId, Long itemId) {

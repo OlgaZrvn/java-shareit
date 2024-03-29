@@ -1,10 +1,8 @@
 package ru.practicum.shareit.request;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponse;
-import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

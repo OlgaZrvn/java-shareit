@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.ItemMapperImpl;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
@@ -27,7 +26,7 @@ class ItemRequestServiceTest {
 
     @BeforeEach
     void setUp() {
-        itemRequestService = new ItemRequestServiceImpl(repository, userRepository, itemRepository, new ItemMapperImpl());
+        itemRequestService = new ItemRequestServiceImpl(repository, userRepository, itemRepository);
     }
 
     @Test

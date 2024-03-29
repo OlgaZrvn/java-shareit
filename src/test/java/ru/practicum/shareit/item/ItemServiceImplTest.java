@@ -7,7 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -15,16 +14,14 @@ import ru.practicum.shareit.comment.CommentMapperNew;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto2;
-import ru.practicum.shareit.item.dto.ItemResponse2;
+import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -45,15 +42,19 @@ class ItemServiceImplTest {
     @Mock
     BookingRepository bookingRepository;
 
+    @Mock
+    ItemRequestRepository itemRequestRepository;
+
     private ItemMapper itemMapper;
 
     private final EasyRandom generator = new EasyRandom();
+    private final PageRequest page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
 
     @BeforeEach
     void setUp() {
-        itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, bookingRepository,
-                new ItemMapperImpl(), new CommentMapperNew());
         itemMapper = new ItemMapperImpl();
+        itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, bookingRepository,
+                itemRequestRepository, itemMapper, new CommentMapperNew());
     }
 
     @Test
@@ -70,11 +71,11 @@ class ItemServiceImplTest {
         Item item = itemMapper.toItem(itemDto2);
         item.setOwner(owner);
         when(itemRepository.save(Mockito.any())).thenReturn(item);
-        ItemResponse2 itemResponse = itemMapper.toItemResponse2(itemRepository.save(item));
+        ItemResponse itemResponse = itemMapper.toItemResponse(itemRepository.save(item));
         if (itemDto2.getRequestId() != null) {
             itemResponse.setRequestId(itemDto2.getRequestId());
         }
-        ItemResponse2 returnedItem = itemService.saveItem(0L, itemDto2);
+        ItemResponse returnedItem = itemService.saveItem(0L, itemDto2);
         assertEquals(itemResponse, returnedItem);
     }
 
@@ -132,18 +133,32 @@ class ItemServiceImplTest {
         User owner = new User(0L, "owner@ya.ru", "Owner1");
         item.setOwner(owner);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
-        ItemResponse2 updatedItem = itemService.getItemById(item.getId(), owner.getId());
+        ItemResponse updatedItem = itemService.getItemById(item.getId(), owner.getId());
         when(itemRepository.save(Mockito.any())).thenReturn(itemMapper.toItem(updatedItem));
         when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(item);
         when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(owner);
-        ItemResponse2 returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
+        ItemResponse returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
         assertEquals(updatedItem, returnedItem);
     }
 
-    @Test
+/*    @Test
     void testSearchItems() {
-        Page<Item> items;
-        generator.nextObject(Item.class);
+        User user = new User("user@ya.ru", "User1");
+        Item item2 = new Item("Item2", "Good item", true, user);
+        Page<Item> items = new Pageable(item2);
         when(itemRepository.searchItems(Mockito.anyString(), Mockito.any())).thenReturn();
+        List<Item> searchedItems = itemService.searchItems("GOOD", 0,10);
+        assertEquals(1, searchedItems.size());
     }
+    public List<Item> searchItems(String string, Integer from, Integer size) {
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
+        if (string.isBlank()) {
+            return new ArrayList<>();
+        } else {
+            return itemRepository.searchItems(string.toUpperCase(), page)
+                    .stream()
+                    .collect(toList());
+        }
+
+ */
 }
