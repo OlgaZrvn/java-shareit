@@ -12,14 +12,11 @@ import java.util.ArrayList;
 @UtilityClass
 public class ItemRequestMapperNew {
 
-    @Autowired
-    private UserService userService;
-
     public static ItemRequest toItemRequest(ItemRequestDto request) {
         return new ItemRequest(
                 request.getId(),
                 request.getDescription(),
-                userService.getUserById(request.getRequestorId()),
+               null,
                 LocalDateTime.now());
     }
 
@@ -41,7 +38,7 @@ public class ItemRequestMapperNew {
         return new ItemRequest(
                 request.getId(),
                 request.getDescription(),
-                userService.getUserById(request.getRequestorId()),
+                null,
                 LocalDateTime.now());
     }
 

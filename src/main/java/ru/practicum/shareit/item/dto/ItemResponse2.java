@@ -23,4 +23,12 @@ public class ItemResponse2 {
     private ItemRequest request;
     private List<CommentResponse> comments;
     private Long requestId;
+
+    public ItemResponse2(Long id, String name, String description, Boolean available, Long requestId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.requestId = requestId;
+    }
 }

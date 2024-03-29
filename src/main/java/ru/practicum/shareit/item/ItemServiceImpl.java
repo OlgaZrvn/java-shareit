@@ -18,6 +18,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -37,8 +38,9 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-    private final ItemMapper itemMapper;
+    private final ItemRequestRepository itemRequestRepository;
     private final CommentMapperNew commentMapper;
+    private final ItemMapper itemMapper;
 
     @Override
     @Transactional
@@ -50,6 +52,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwner(owner);
         ItemResponse2 itemResponse = itemMapper.toItemResponse2(itemRepository.save(item));
         if (itemDto2.getRequestId() != null) {
+            item.setRequest(itemRequestRepository.getReferenceById(itemDto2.getRequestId()));
             itemResponse.setRequestId(itemDto2.getRequestId());
         }
         log.info("Создан новый товар {}", item.getName());
@@ -73,6 +76,9 @@ public class ItemServiceImpl implements ItemService {
         if (user.getId().equals(item.getOwner().getId())) {
             addLastAndNextBooking(itemResponse, userId);
         }
+        if (item.getRequest() != null) {
+            itemResponse.setRequestId(item.getRequest().getId());
+        }
         List<Comment> commentList = commentRepository.findByItemId(itemId);
         itemResponse.setComments(commentList
                 .stream()
@@ -84,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemResponse2 updateItem(Long itemId, Long userId, Item item) {
-        User owner = userRepository.findById(userId).orElseThrow(() ->
+        userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         checkOwner(userId, itemId);
         ItemResponse2 updatedItem = getItemById(itemId, userId);
@@ -168,10 +174,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public List<ItemDto2> getItemsByRequestId(Long requestId) {
-      //  return itemRepository.findByRequestId(requestId);
-        return itemRepository.getItemsByRequestId(requestId, Sort.by(DESC, "id"))
+        return itemRepository.findByRequestId(requestId, Sort.by(DESC, "id"))
                 .stream()
-                .map(itemMapper::toItemDto2)
+                .map(ItemMapperNew::toItemDto)
                 .collect(toList());
     }
 

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.ItemMapperNew;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.item.model.Item;
@@ -18,6 +19,7 @@ import ru.practicum.shareit.request.dto.ItemRequestResponse;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,11 +76,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         checkUser(userId);
         ItemRequest itemRequest = repository.findById(requestId).orElseThrow(() ->
                 new NotFoundException("Запрос с id " + requestId + " не найден"));
+
         ItemRequestResponse itemRequestResponse = ItemRequestMapperNew.toItemRequestResponse(itemRequest);
+
         itemRequestResponse.setItems(itemRepository.findByRequestId(itemRequest.getId())
-                .stream().map(itemMapper::toItemDto2)
-                .collect(Collectors.toList())
-    );
+                .stream()
+                .map(ItemMapperNew::toItemDto)
+                .collect(Collectors.toList()));
+
         log.info("Получен запрос с id {}", requestId);
         return itemRequestResponse;
     }
@@ -95,18 +100,21 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .stream()
                 .map(ItemRequestMapperNew::toItemRequestResponse)
                 .collect(Collectors.toList());
+        log.info("Получен список из {} запросов", itemRequestResponseList.size());
 
         List<Long> itemRequestIds = itemRequests
                 .stream()
                 .map(ItemRequest::getId)
                 .collect(Collectors.toList());
+        log.info("Получен список из {}  id запросов", itemRequestIds.size());
 
         List<Item> items = itemRepository.findByRequestIdIn(itemRequestIds);
+        log.info("Получен список из {} товаров", items.size());
 
         if (!items.isEmpty()) {
             List<ItemDto2> itemDto2List = items
                     .stream()
-                    .map(itemMapper::toItemDto2)
+                    .map(ItemMapperNew::toItemDto)
                     .collect(Collectors.toList());
 
             Map<Long, List<ItemDto2>> itemRequestIdToItems = itemDto2List
@@ -115,6 +123,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
             itemRequestResponseList.forEach(itemRequestResponse ->
                     itemRequestResponse.setItems(itemRequestIdToItems.get(itemRequestResponse.getId())));
+        } else {
+            itemRequestResponseList.forEach(itemRequestResponse ->
+                    itemRequestResponse.setItems(new ArrayList<>()));
         }
         return itemRequestResponseList;
     }

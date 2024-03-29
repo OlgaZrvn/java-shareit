@@ -7,6 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.comment.CommentMapperNew;
 import ru.practicum.shareit.comment.CommentRepository;
@@ -17,8 +20,11 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -134,21 +140,10 @@ class ItemServiceImplTest {
         assertEquals(updatedItem, returnedItem);
     }
 
- /*        if (item.getName() != null) {
-        updatedItem.setName(item.getName());
-    } else {
-        updatedItem.setName(itemRepository.getReferenceById(itemId).getName());
+    @Test
+    void testSearchItems() {
+        Page<Item> items;
+        generator.nextObject(Item.class);
+        when(itemRepository.searchItems(Mockito.anyString(), Mockito.any())).thenReturn();
     }
-        if (item.getDescription() != null) {
-        updatedItem.setDescription(item.getDescription());
-    } else {
-        updatedItem.setDescription(itemRepository.getReferenceById(itemId).getDescription());
-    }
-        if (item.getAvailable() != null) {
-        updatedItem.setAvailable(item.getAvailable());
-    } else {
-        updatedItem.setAvailable(itemRepository.getReferenceById(itemId).getAvailable());
-    }
-
-  */
 }

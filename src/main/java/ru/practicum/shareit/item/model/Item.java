@@ -30,7 +30,8 @@ public class Item {
     @JoinColumn(name = "request_id")
     private ItemRequest request;
 
-    public Item(String name, String description, Boolean available) {
+    public Item(Long id, String name, String description, Boolean available) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;

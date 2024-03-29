@@ -36,15 +36,15 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<ItemResponse2> updateItem(@PathVariable Long itemId,
-                                                   @NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @RequestBody ItemDto itemDto) {
+                                                    @NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                    @RequestBody ItemDto itemDto) {
         Item item = itemMapper.toItem(itemDto);
         return ResponseEntity.ok().body(itemService.updateItem(itemId, userId, item));
     }
 
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemResponse2> getItemById(@PathVariable Long itemId,
-                                                    @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                                     @RequestHeader("X-Sharer-User-Id") Long userId) {
         return ResponseEntity.ok().body(itemService.getItemById(itemId, userId));
     }
 
