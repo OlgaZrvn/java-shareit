@@ -39,7 +39,6 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
-    private final CommentMapperNew commentMapper;
 
 
     @Override
@@ -84,7 +83,7 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> commentList = commentRepository.findByItemId(itemId);
         itemResponse.setComments(commentList
                 .stream()
-                .map(commentMapper::toCommentResponse)
+                .map(CommentMapperNew::toCommentResponse)
                 .collect(toList()));
         return itemResponse;
     }
@@ -166,7 +165,7 @@ public class ItemServiceImpl implements ItemService {
         comment.setText(commentDto.getText());
         comment.setCreated(LocalDateTime.now());
         log.info("Добавлен отзыв");
-        return commentMapper.toCommentResponse(commentRepository.save(comment));
+        return CommentMapperNew.toCommentResponse(commentRepository.save(comment));
     }
 
     void checkOwner(Long userId, Long itemId) {

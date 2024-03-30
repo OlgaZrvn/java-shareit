@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.comment.CommentMapperNew;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -54,7 +53,7 @@ class ItemServiceImplTest {
     void setUp() {
         itemMapper = new ItemMapperImpl();
         itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, bookingRepository,
-                itemRequestRepository, itemMapper, new CommentMapperNew());
+                itemRequestRepository, itemMapper);
     }
 
     @Test

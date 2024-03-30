@@ -47,7 +47,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemResponse>> getAllItemsUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public ResponseEntity<List<ItemResponse>> getAllItemsByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                               @RequestParam(defaultValue = "0") Integer from,
                                                               @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity.ok().body(itemService.getAllItemsUser(userId, from, size));

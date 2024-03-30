@@ -11,7 +11,7 @@ public interface BookingService {
 
     BookingResponse updateBooking(Long userId, Long bookingId, Boolean approved);
 
-    BookingResponse getBookingById(Long bookingId, Long userId);
+    BookingResponse getBookingById(Long userId, Long bookingId);
 
     List<BookingResponse> getAllBookings(Long userId, State state, Integer from, Integer size);
 

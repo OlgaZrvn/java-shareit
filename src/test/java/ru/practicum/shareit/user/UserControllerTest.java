@@ -62,11 +62,8 @@ class UserControllerTest {
         users.add(new User(0L,"User1", "user1@ya.ru"));
         users.add(new User(1L,"User2", "user2@ya.ru"));
         when(userService.getAllUsers()).thenReturn(users);
-        mvc.perform(get("/users")
-                        .content(mapper.writeValueAsString(users))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+
+        mvc.perform(get("/users"))
                 .andExpect(status().isOk());
     }
 
