@@ -11,7 +11,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemMapperNew;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.dto.ItemDto2;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponse;
@@ -110,14 +110,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         log.info("Получен список из {} товаров", items.size());
 
         if (!items.isEmpty()) {
-            List<ItemDto2> itemDto2List = items
+            List<ItemDto> itemDtoList = items
                     .stream()
                     .map(ItemMapperNew::toItemDto)
                     .collect(Collectors.toList());
 
-            Map<Long, List<ItemDto2>> itemRequestIdToItems = itemDto2List
+            Map<Long, List<ItemDto>> itemRequestIdToItems = itemDtoList
                     .stream()
-                    .collect(Collectors.groupingBy(ItemDto2::getRequestId, Collectors.toList()));
+                    .collect(Collectors.groupingBy(ItemDto::getRequestId, Collectors.toList()));
 
             itemRequestResponseList.forEach(itemRequestResponse ->
                     itemRequestResponse.setItems(itemRequestIdToItems.get(itemRequestResponse.getId())));

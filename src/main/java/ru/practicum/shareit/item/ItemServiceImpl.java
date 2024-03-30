@@ -44,16 +44,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemResponse saveItem(Long userId, ItemDto2 itemDto2) {
+    public ItemResponse saveItem(Long userId, ItemDto itemDto) {
         log.info("Проверяем пользователя с id {}", userId);
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        Item item = itemMapper.toItem(itemDto2);
+        Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
         ItemResponse itemResponse = itemMapper.toItemResponse(itemRepository.save(item));
-        if (itemDto2.getRequestId() != null) {
-            item.setRequest(itemRequestRepository.getReferenceById(itemDto2.getRequestId()));
-            itemResponse.setRequestId(itemDto2.getRequestId());
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(itemRequestRepository.getReferenceById(itemDto.getRequestId()));
+            itemResponse.setRequestId(itemDto.getRequestId());
         }
         log.info("Создан новый товар {}", item.getName());
         return itemResponse;

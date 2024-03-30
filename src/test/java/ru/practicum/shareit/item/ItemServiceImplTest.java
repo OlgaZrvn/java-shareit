@@ -13,7 +13,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.comment.CommentMapperNew;
 import ru.practicum.shareit.comment.CommentRepository;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDto2;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestRepository;
@@ -59,7 +59,7 @@ class ItemServiceImplTest {
 
     @Test
     void testNotSaveItemWithNoOwner() {
-        ItemDto2 item = generator.nextObject(ItemDto2.class);
+        ItemDto item = generator.nextObject(ItemDto.class);
         assertThrows(NotFoundException.class, () ->  itemService.saveItem(0L, item));
     }
 
@@ -68,15 +68,15 @@ class ItemServiceImplTest {
         User owner = new User("user@ya.ru", "User1");
         owner.setId(0L);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
-        ItemDto2 itemDto2 = generator.nextObject(ItemDto2.class);
-        Item item = itemMapper.toItem(itemDto2);
+        ItemDto itemDto = generator.nextObject(ItemDto.class);
+        Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
         when(itemRepository.save(Mockito.any())).thenReturn(item);
         ItemResponse itemResponse = itemMapper.toItemResponse(itemRepository.save(item));
-        if (itemDto2.getRequestId() != null) {
-            itemResponse.setRequestId(itemDto2.getRequestId());
+        if (itemDto.getRequestId() != null) {
+            itemResponse.setRequestId(itemDto.getRequestId());
         }
-        ItemResponse returnedItem = itemService.saveItem(0L, itemDto2);
+        ItemResponse returnedItem = itemService.saveItem(0L, itemDto);
         assertEquals(itemResponse, returnedItem);
     }
 

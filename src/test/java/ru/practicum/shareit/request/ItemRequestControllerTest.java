@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.dto.ItemDto2;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponse;
 
@@ -20,13 +20,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = ItemRequestController.class)
 @AutoConfigureMockMvc
@@ -91,7 +89,7 @@ class ItemRequestControllerTest {
     @Test
     public void shouldGetItemRequestById() throws Exception {
         mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-        List<ItemDto2> items = List.of(generator.nextObject(ItemDto2.class), generator.nextObject(ItemDto2.class));
+        List<ItemDto> items = List.of(generator.nextObject(ItemDto.class), generator.nextObject(ItemDto.class));
         ItemRequestResponse itemRequest = new ItemRequestResponse(
                 0L, "Desc", 0L, LocalDateTime.now(), items);
         when(itemRequestService.getItemRequestById(Mockito.anyLong(), Mockito.anyLong()))
