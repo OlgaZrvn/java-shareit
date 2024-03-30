@@ -62,8 +62,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemResponse> getAllItemsUser(Long userId, Integer from, Integer size) {
         PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
-        return itemRepository.findByOwnerId(userId, page).stream().map(x ->
-                getItemById(x.getId(), userId)).collect(toList());
+        return itemRepository.findByOwnerId(userId, page)
+                .stream()
+                .map(x -> getItemById(x.getId(), userId))
+                .collect(toList());
     }
 
     @Override

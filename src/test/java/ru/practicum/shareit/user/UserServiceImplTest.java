@@ -32,7 +32,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testSaveOneUser() {
+    void testSaveNewUser() {
         when(userRepository.save(Mockito.any())).thenReturn(user);
         User savedUser = userService.saveUser(user);
         assertEquals(user, savedUser);

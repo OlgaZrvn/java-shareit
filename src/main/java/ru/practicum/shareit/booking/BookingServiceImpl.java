@@ -164,20 +164,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
-   /* public static void validation(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMsg.append(error.getField()).append(" - ")
-                        .append(error.getDefaultMessage()).append(";");
-            }
-            throw new ValidationException(errorMsg.toString());
-        }
-    }
-
-    */
-
     public static void isAvailable(Item item) {
         if (!item.getAvailable()) {
             throw new ValidationException("Товар недоступен для бронирования");

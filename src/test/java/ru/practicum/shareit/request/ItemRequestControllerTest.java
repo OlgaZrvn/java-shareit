@@ -63,6 +63,32 @@ class ItemRequestControllerTest {
     }
 
     @Test
+    public void shouldGetAllItemRequestsByUser() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        List<ItemRequestResponse> requests =  List.of(
+                generator.nextObject(ItemRequestResponse.class),
+                generator.nextObject(ItemRequestResponse.class));
+        when(itemRequestService.getAllUserItemRequests(Mockito.anyLong()))
+                .thenReturn(requests);
+        mvc.perform(get("/requests/0")
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldGetAllItemRequests() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        List<ItemRequestResponse> requests =  List.of(
+                generator.nextObject(ItemRequestResponse.class),
+                generator.nextObject(ItemRequestResponse.class));
+        when(itemRequestService.getAllItemRequests(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()))
+                .thenReturn(requests);
+        mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void shouldGetItemRequestById() throws Exception {
         mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         List<ItemDto2> items = List.of(generator.nextObject(ItemDto2.class), generator.nextObject(ItemDto2.class));

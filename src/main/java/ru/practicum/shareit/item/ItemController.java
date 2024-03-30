@@ -7,7 +7,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDto2;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
@@ -26,19 +25,18 @@ import java.util.stream.Collectors;
 public class ItemController {
 
     private final ItemService itemService;
-    private final ItemMapper itemMapper;
 
     @PostMapping
     public ResponseEntity<ItemResponse> createNewItem(@NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @Valid @RequestBody ItemDto2 itemDto2) {
-        return ResponseEntity.ok().body(itemService.saveItem(userId, itemDto2));
+                                                      @Valid @RequestBody ItemDto2 itemDto) {
+        return ResponseEntity.ok().body(itemService.saveItem(userId, itemDto));
     }
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<ItemResponse> updateItem(@PathVariable Long itemId,
                                                    @NonNull @RequestHeader("X-Sharer-User-Id") Long userId,
-                                                   @RequestBody ItemDto itemDto) {
-        Item item = itemMapper.toItem(itemDto);
+                                                   @RequestBody ItemDto2 itemDto) {
+        Item item = ItemMapperNew.toItem(itemDto);
         return ResponseEntity.ok().body(itemService.updateItem(itemId, userId, item));
     }
 
@@ -56,12 +54,12 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ItemDto>> searchItems(@RequestParam String text,
+    public ResponseEntity<List<ItemDto2>> searchItems(@RequestParam String text,
                                                      @RequestParam(defaultValue = "0") Integer from,
                                                      @RequestParam(required = false, defaultValue = "10") Integer size) {
         return ResponseEntity.ok().body(itemService.searchItems(text, from, size)
                 .stream()
-                .map(itemMapper::toItemDto)
+                .map(ItemMapperNew::toItemDto)
                 .collect(Collectors.toList()));
     }
 
