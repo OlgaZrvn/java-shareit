@@ -30,7 +30,7 @@ class ItemRepositoryTest {
 
     @Test
     void testEmptyItemByOwnerId() {
-        User user = new User("user@ya.ru", "User1");
+        User user = new User("User", "user@ya.ru");
         userRepository.save(user);
         PageRequest page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
         List<Item> items = itemRepository.findByOwnerId(user.getId(), page).toList();

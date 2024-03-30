@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Validated
 @RestController
 @RequestMapping("/items")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
@@ -67,7 +67,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public ResponseEntity<CommentResponse> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                         @RequestBody CommentDto commentDto,
+                                                         @Valid @RequestBody CommentDto commentDto,
                                                          @PathVariable("itemId") Long itemId) {
         return ResponseEntity.ok().body(itemService.saveComment(userId, commentDto, itemId));
     }

@@ -65,7 +65,8 @@ class ItemServiceImplTest {
 
     @Test
     void testSaveOneItem() {
-        User owner = new User(0L, "user@ya.ru", "User1");
+        User owner = new User("user@ya.ru", "User1");
+        owner.setId(0L);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
         ItemDto2 itemDto2 = generator.nextObject(ItemDto2.class);
         Item item = itemMapper.toItem(itemDto2);
@@ -118,9 +119,11 @@ class ItemServiceImplTest {
     @Test
     void testNotUpdateItemWithUserNotOwner() {
         Item item = generator.nextObject(Item.class);
-        User owner = new User(0L, "owner@ya.ru", "Owner1");
+        User owner = new User("owner@ya.ru", "Owner1");
+        owner.setId(0L);
         item.setOwner(owner);
-        User user = new User(1L, "user@ya.ru", "User");
+        User user = new User("user@ya.ru", "User");
+        user.setId(1L);
         when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(item);
         when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(user);
         assertThrows(NotFoundException.class, () ->  itemService.checkOwner(item.getId(), user.getId()));
@@ -130,7 +133,8 @@ class ItemServiceImplTest {
     void testUpdateItem() {
         Item item = generator.nextObject(Item.class);
         when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
-        User owner = new User(0L, "owner@ya.ru", "Owner1");
+        User owner = new User("owner@ya.ru", "Owner1");
+        owner.setId(0L);
         item.setOwner(owner);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
         ItemResponse updatedItem = itemService.getItemById(item.getId(), owner.getId());

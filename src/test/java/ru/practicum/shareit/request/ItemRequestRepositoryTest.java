@@ -28,6 +28,8 @@ class ItemRequestRepositoryTest {
     @Autowired
     private ItemRequestRepository repository;
 
+    private final User user = new User("User", "user@ya.ru");
+
     @Test
     void testEmptyItemRequestByRequestorId() {
         List<ItemRequest> itemRequests = repository.findAllByRequestorId(1L);
@@ -36,7 +38,6 @@ class ItemRequestRepositoryTest {
 
     @Test
     void testOneItemRequestByRequestorId() {
-        User user = new User("user@ya.ru", "User1");
         userRepository.save(user);
         ItemRequest itemRequest = new ItemRequest("Request1", user, LocalDateTime.now());
         repository.save(itemRequest);
@@ -53,7 +54,6 @@ class ItemRequestRepositoryTest {
 
     @Test
     void testOneItemRequest() {
-        User user = new User("user@ya.ru", "User1");
         userRepository.save(user);
         ItemRequest itemRequest = new ItemRequest(1L, "Request1", user, LocalDateTime.now());
         itemRequest.setRequestor(user);

@@ -24,6 +24,8 @@ class UserServiceImplTest {
     @Mock
     UserRepository userRepository;
 
+    private final User user = new User("User", "user@ya.ru");
+
     @BeforeEach
     void setUp() {
         userService = new UserServiceImpl(userRepository);
@@ -31,7 +33,6 @@ class UserServiceImplTest {
 
     @Test
     void testSaveOneUser() {
-        User user = new User(0L, "user@ya.ru", "User1");
         when(userRepository.save(Mockito.any())).thenReturn(user);
         User savedUser = userService.saveUser(user);
         assertEquals(user, savedUser);
@@ -40,8 +41,8 @@ class UserServiceImplTest {
     @Test
     void testGet2Users() {
         List<User> users = new ArrayList<>();
-        User user1 = new User(0L, "user1@ya.ru", "User1");
-        User user2 = new User(1L, "user2@ya.ru", "User2");
+        User user1 = new User("User1", "user1@ya.ru");
+        User user2 = new User("User2", "user2@ya.ru");
         users.add(user1);
         users.add(user2);
         when(userRepository.findAll()).thenReturn(users);
@@ -51,11 +52,10 @@ class UserServiceImplTest {
 
     @Test
     void testGetUserById() {
-        User user = new User(0L, "user@ya.ru", "User1");
         when(userRepository.save(Mockito.any())).thenReturn(user);
-        Long id = userService.saveUser(user).getId();
+        userService.saveUser(user);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
-        User returnedUser = userService.getUserById(id);
+        User returnedUser = userService.getUserById(0L);
         assertEquals(user, returnedUser);
     }
 
@@ -66,7 +66,6 @@ class UserServiceImplTest {
 
     @Test
     void testUpdateUser() {
-        User user = new User(0L, "user@ya.ru", "User1");
         User updatedUser = new User("updatedUser@ya.ru", "UpdatedUser1");
         when(userRepository.save(Mockito.any())).thenReturn(updatedUser);
         Long id = userService.saveUser(user).getId();
@@ -76,7 +75,6 @@ class UserServiceImplTest {
 
     @Test
     void testDeleteUser() {
-        User user = new User(0L, "user@ya.ru", "User1");
         when(userRepository.save(Mockito.any())).thenReturn(user);
         userService.saveUser(user);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));

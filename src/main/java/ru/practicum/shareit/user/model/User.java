@@ -10,8 +10,8 @@ import javax.persistence.*;
  * TODO Sprint add-controllers.
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -22,8 +22,8 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    public User(String email, String name) {
-        this.email = email;
+    public User(String name, String email) {
         this.name = name;
+        this.email = email;
     }
 }

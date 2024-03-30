@@ -7,8 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponse;
 import ru.practicum.shareit.booking.model.Booking;
@@ -38,8 +36,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponse saveBooking(Long userId, BookingDto bookingDto, BindingResult bindingResult) {
-        validation(bindingResult);
+    public BookingResponse saveBooking(Long userId, BookingDto bookingDto) {
         Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() ->
                 new NotFoundException("Товар не найден"));
         isAvailable(item);
@@ -167,7 +164,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
-    public static void validation(BindingResult bindingResult) {
+   /* public static void validation(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             StringBuilder errorMsg = new StringBuilder();
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -178,6 +175,8 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException(errorMsg.toString());
         }
     }
+
+    */
 
     public static void isAvailable(Item item) {
         if (!item.getAvailable()) {

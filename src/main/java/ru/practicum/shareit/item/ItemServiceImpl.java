@@ -151,9 +151,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentResponse saveComment(Long userId, CommentDto commentDto, Long itemId) {
-        if (commentDto.getText().isBlank() || commentDto.getText() == null) {
-            throw new ValidationException("Текст комментария не может быть пустым");
-        }
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Товар с id " + itemId + " не найден"));
         User user = userRepository.findById(userId).orElseThrow(() ->
@@ -161,9 +158,6 @@ public class ItemServiceImpl implements ItemService {
         bookingRepository.findFirstByBookerIdAndItemIdAndEndBefore(userId, itemId, LocalDateTime.now())
                 .orElseThrow(() -> new ValidationException("Пользователь с id " + userId +
                         " ещё не брал в аренду этот товар"));
-        if (item.getOwner().getId().equals(userId)) {
-            throw new ValidationException("Пользователь с id " + userId + " является владельцем");
-        }
         Comment comment = new Comment();
         comment.setItem(item);
         comment.setAuthor(user);

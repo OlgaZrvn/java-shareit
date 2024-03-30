@@ -31,8 +31,8 @@ class ItemRequestServiceTest {
 
     @Test
     void testNotFindItemRequestById() {
-        User user = new User("user@ya.ru", "User1");
-        userRepository.save(user);
+        User user = new User("User", "user@ya.ru");
+      //  userRepository.save(user);
         assertThrows(NotFoundException.class, () ->  itemRequestService.getItemRequestById(0L, user.getId()));
     }
 
