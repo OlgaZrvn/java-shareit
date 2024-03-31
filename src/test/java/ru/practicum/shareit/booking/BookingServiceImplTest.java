@@ -257,6 +257,24 @@ class BookingServiceImplTest {
     }
 
     @Test
+    void shouldUpdateBookingWithApprovedFalse() {
+        Booking booking = generator.nextObject(Booking.class);
+        when(bookingRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(booking));
+        booking.getItem().setOwner(user);
+        when(bookingRepository.save(Mockito.any(Booking.class))).thenReturn(booking);
+        BookingResponse bookingResponse = new BookingResponse(
+                booking.getId(),
+                booking.getStart(),
+                booking.getEnd(),
+                booking.getItem(),
+                booking.getBooker(),
+                Status.REJECTED);
+        when(bookingMapper.toBookingResponse(Mockito.any(Booking.class))).thenReturn(bookingResponse);
+        BookingResponse updatedBooking = bookingService.updateBooking(user.getId(), booking.getId(), false);
+        assertEquals(bookingResponse, updatedBooking);
+    }
+
+    @Test
     void shouldNotGetAllBookingWithNegativeFrom() {
         assertThrows(ValidationException.class, () ->
                 bookingService.getAllBookings(user.getId(), State.ALL, -1, 1));

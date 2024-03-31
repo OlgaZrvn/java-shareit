@@ -148,5 +148,24 @@ class BookingControllerTest {
                         .header("X-Sharer-User-Id", 0))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void shouldGetAllBookingsByItemOwner() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        List<BookingResponse> bookingResponses = List.of(
+                generator.nextObject(BookingResponse.class),
+                generator.nextObject(BookingResponse.class));
+
+        when(bookingService.getAllBookingByItemOwner(Mockito.anyLong(), Mockito.any(State.class),
+                Mockito.anyInt(), Mockito.anyInt()))
+                .thenReturn(bookingResponses);
+
+        mvc.perform(get("/bookings/owner")
+                        .param("state", "ALL")
+                        .param("from", "0")
+                        .param("size", "20")
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isOk());
+    }
 }
 
