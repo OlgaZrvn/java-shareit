@@ -178,6 +178,12 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void shouldNotSaveCommentWithoutItem() {
+        CommentDto commentDto = generator.nextObject(CommentDto.class);
+        assertThrows(NotFoundException.class, () -> itemService.saveComment(user.getId(), commentDto, 0L));
+    }
+
+    @Test
     void shouldNotSaveCommentWithoutUser() {
         CommentDto commentDto = generator.nextObject(CommentDto.class);
         Item item = generator.nextObject(Item.class);
