@@ -7,11 +7,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentRepository;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemResponse;
 import ru.practicum.shareit.item.model.Item;
@@ -19,6 +26,8 @@ import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,26 +53,26 @@ class ItemServiceImplTest {
     @Mock
     ItemRequestRepository itemRequestRepository;
 
-    private ItemMapper itemMapper;
+    ItemMapper itemMapper = new ItemMapperImpl();
 
+    private final User user = new User(0L, "User", "user@ya.ru");
     private final EasyRandom generator = new EasyRandom();
     private final PageRequest page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
 
     @BeforeEach
     void setUp() {
-        itemMapper = new ItemMapperImpl();
         itemService = new ItemServiceImpl(itemRepository, userRepository, commentRepository, bookingRepository,
                 itemRequestRepository, itemMapper);
     }
 
     @Test
-    void testNotSaveItemWithNoOwner() {
+    void shouldNotSaveItemWithNoOwner() {
         ItemDto item = generator.nextObject(ItemDto.class);
         assertThrows(NotFoundException.class, () ->  itemService.saveItem(0L, item));
     }
 
     @Test
-    void testSaveOneItem() {
+    void shouldSaveOneItem() {
         User owner = new User("user@ya.ru", "User1");
         owner.setId(0L);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
@@ -79,44 +88,71 @@ class ItemServiceImplTest {
         assertEquals(itemResponse, returnedItem);
     }
 
- /*   @Test
-    void testGet2Items() {
+    @Test
+    void shouldGet2Items() {
         User owner = new User(0L, "user@ya.ru", "User1");
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
 
-        List<ItemResponse2> items = new ArrayList<>();
-        items.add(generator.nextObject(ItemResponse2.class));
-        items.add(generator.nextObject(ItemResponse2.class));
+        Item item1 = generator.nextObject(Item.class);
+        Item item2 = generator.nextObject(Item.class);
+        Page<Item> itemsPage = new PageImpl<>(List.of(item1, item2));
+        when(itemRepository.findByOwnerId(Mockito.anyLong(), Mockito.any())).thenReturn(itemsPage);
 
-        PageRequest page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
-        when(itemRepository.findByOwnerId(0L, page).stream().map(x ->
-               itemService.getItemById(x.getId(), 0L)).collect(toList())).thenReturn(items);
-        List<ItemResponse2> savedItems = itemService.getAllItemsUser(0L, 0, 10);
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user));
+        ItemResponse itemResponse = new ItemResponse(
+                item.getId(), item.getName(), item.getDescription(), item.getAvailable(), user.getId());
+        itemResponse.setOwner(item.getOwner());
+        List<Comment> commentList = List.of(
+                generator.nextObject(Comment.class),
+                generator.nextObject(Comment.class)
+        );
+        when(commentRepository.findByItemId(Mockito.anyLong())).thenReturn(commentList);
+
+        List<ItemResponse> savedItems = itemService.getAllItemsUser(0L, 0, 10);
         assertEquals(2, savedItems.size());
     }
 
-  */
 
     @Test
-    void testNotFindItemByIdWithoutItem() {
+    void shouldNotFindItemByIdWithoutItem() {
         assertThrows(NotFoundException.class, () ->  itemService.getItemById(0L, 0L));
     }
 
     @Test
-    void testNotFindItemByIdWithoutUser() {
+    void shouldNotFindItemByIdWithoutUser() {
         Item item = generator.nextObject(Item.class);
         when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
         assertThrows(NotFoundException.class, () ->  itemService.getItemById(item.getId(), 0L));
     }
 
     @Test
-    void testNotUpdateItemWithoutUser() {
+    void shouldFindItemById() {
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user));
+        ItemResponse itemResponse = new ItemResponse(
+                item.getId(), item.getName(), item.getDescription(), item.getAvailable(), user.getId());
+        itemResponse.setOwner(item.getOwner());
+        List<Comment> commentList = List.of(
+                generator.nextObject(Comment.class),
+                generator.nextObject(Comment.class)
+        );
+        when(commentRepository.findByItemId(Mockito.anyLong())).thenReturn(commentList);
+
+        ItemResponse returnedItem = itemService.getItemById(item.getId(), user.getId());
+        assertEquals(itemResponse.getId(), returnedItem.getId());
+    }
+
+    @Test
+    void shouldNotUpdateItemWithoutUser() {
         Item item = generator.nextObject(Item.class);
         assertThrows(NotFoundException.class, () ->  itemService.updateItem(item.getId(), 0L, item));
     }
 
     @Test
-    void testNotUpdateItemWithUserNotOwner() {
+    void shouldNotUpdateItemWithUserNotOwner() {
         Item item = generator.nextObject(Item.class);
         User owner = new User("owner@ya.ru", "Owner1");
         owner.setId(0L);
@@ -129,7 +165,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void testUpdateItem() {
+    void shouldUpdateItem() {
         Item item = generator.nextObject(Item.class);
         when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
         User owner = new User("owner@ya.ru", "Owner1");
@@ -144,24 +180,64 @@ class ItemServiceImplTest {
         assertEquals(updatedItem, returnedItem);
     }
 
-/*    @Test
-    void testSearchItems() {
-        User user = new User("user@ya.ru", "User1");
-        Item item2 = new Item("Item2", "Good item", true, user);
-        Page<Item> items = new Pageable(item2);
-        when(itemRepository.searchItems(Mockito.anyString(), Mockito.any())).thenReturn();
-        List<Item> searchedItems = itemService.searchItems("GOOD", 0,10);
-        assertEquals(1, searchedItems.size());
+    @Test
+    void shouldNotSaveCommentWithoutItem() {
+        CommentDto commentDto = generator.nextObject(CommentDto.class);
+        assertThrows(NotFoundException.class, () -> itemService.saveComment(user.getId(), commentDto, 0L));
     }
-    public List<Item> searchItems(String string, Integer from, Integer size) {
-        PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
-        if (string.isBlank()) {
-            return new ArrayList<>();
-        } else {
-            return itemRepository.searchItems(string.toUpperCase(), page)
-                    .stream()
-                    .collect(toList());
-        }
 
- */
+    @Test
+    void shouldNotSaveCommentWithoutUser() {
+        CommentDto commentDto = generator.nextObject(CommentDto.class);
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        assertThrows(NotFoundException.class, () -> itemService.saveComment(user.getId(), commentDto, item.getId()));
+    }
+
+    @Test
+    void shouldNotSaveCommentWithoutBooking() {
+        CommentDto commentDto = generator.nextObject(CommentDto.class);
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user));
+        assertThrows(ValidationException.class, () -> itemService.saveComment(user.getId(), commentDto, item.getId()));
+    }
+
+    @Test
+    void shouldSaveComment() {
+        Comment comment = generator.nextObject(Comment.class);
+        CommentDto commentDto = new CommentDto(comment.getText());
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user));
+
+        Booking booking = generator.nextObject(Booking.class);
+        when(bookingRepository.findFirstByBookerIdAndItemIdAndEndBefore(
+                Mockito.anyLong(), Mockito.anyLong(), Mockito.any(LocalDateTime.class)))
+                .thenReturn(Optional.ofNullable(booking));
+
+        when(commentRepository.save(Mockito.any(Comment.class))).thenReturn(comment);
+        CommentResponse commentResponse = new CommentResponse(
+                comment.getId(), comment.getText(), comment.getAuthor().getName(), comment.getCreated());
+
+        CommentResponse savedComment = itemService.saveComment(user.getId(), commentDto, item.getId());
+        assertEquals(commentResponse.getText(), savedComment.getText());
+    }
+
+    @Test
+    void shouldSearchItems() {
+        Item item1 = generator.nextObject(Item.class);
+        Item item2 = generator.nextObject(Item.class);
+        Page<Item> itemsPage = new PageImpl<>(List.of(item1, item2));
+        when(itemRepository.searchItems(Mockito.anyString(), Mockito.any())).thenReturn(itemsPage);
+        List<Item> searchedItems = itemService.searchItems("GOOD", 0,10);
+        assertEquals(2, searchedItems.size());
+    }
+
+    @Test
+    void shouldNotSearchItemsWithEmptyText() {
+        List<Item> searchedItems = itemService.searchItems("", 0,10);
+        assertEquals(0, searchedItems.size());
+    }
+
 }

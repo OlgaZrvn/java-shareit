@@ -164,8 +164,10 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(user);
         comment.setText(commentDto.getText());
         comment.setCreated(LocalDateTime.now());
+        commentRepository.save(comment);
+        CommentResponse commentResponse = CommentMapperNew.toCommentResponse(comment);
         log.info("Добавлен отзыв");
-        return CommentMapperNew.toCommentResponse(commentRepository.save(comment));
+        return commentResponse;
     }
 
     void checkOwner(Long userId, Long itemId) {
