@@ -143,6 +143,25 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void shouldFindItemByIdWithoutLastAndNextBooking() {
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user));
+        ItemResponse itemResponse = new ItemResponse(
+                item.getId(), item.getName(), item.getDescription(), item.getAvailable(), user.getId());
+        itemResponse.setOwner(user);
+
+        List<Comment> commentList = List.of(
+                generator.nextObject(Comment.class),
+                generator.nextObject(Comment.class)
+        );
+        when(commentRepository.findByItemId(Mockito.anyLong())).thenReturn(commentList);
+
+        ItemResponse returnedItem = itemService.getItemById(item.getId(), user.getId());
+        assertEquals(itemResponse.getId(), returnedItem.getId());
+    }
+
+    @Test
     void shouldNotUpdateItemWithoutUser() {
         Item item = generator.nextObject(Item.class);
         assertThrows(NotFoundException.class, () ->  itemService.updateItem(item.getId(), 0L, item));
@@ -174,6 +193,60 @@ class ItemServiceImplTest {
         when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(item);
         when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(owner);
         ItemResponse returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
+        assertEquals(updatedItem, returnedItem);
+    }
+
+    @Test
+    void shouldUpdateItemWithoutName() {
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        User owner = new User("owner@ya.ru", "Owner1");
+        owner.setId(0L);
+        item.setOwner(owner);
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
+        ItemResponse updatedItem = itemService.getItemById(item.getId(), owner.getId());
+        updatedItem.setName(null);
+        when(itemRepository.save(Mockito.any())).thenReturn(itemMapper.toItem(updatedItem));
+        when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(item);
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(owner);
+        ItemResponse returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
+        updatedItem.setName(returnedItem.getName());
+        assertEquals(updatedItem, returnedItem);
+    }
+
+    @Test
+    void shouldUpdateItemWithoutDescription() {
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        User owner = new User("owner@ya.ru", "Owner1");
+        owner.setId(0L);
+        item.setOwner(owner);
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
+        ItemResponse updatedItem = itemService.getItemById(item.getId(), owner.getId());
+        updatedItem.setDescription(null);
+        when(itemRepository.save(Mockito.any())).thenReturn(itemMapper.toItem(updatedItem));
+        when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(item);
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(owner);
+        ItemResponse returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
+        updatedItem.setDescription(returnedItem.getDescription());
+        assertEquals(updatedItem, returnedItem);
+    }
+
+    @Test
+    void shouldUpdateItemWithoutAvailable() {
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        User owner = new User("owner@ya.ru", "Owner1");
+        owner.setId(0L);
+        item.setOwner(owner);
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(owner));
+        ItemResponse updatedItem = itemService.getItemById(item.getId(), owner.getId());
+        updatedItem.setAvailable(null);
+        when(itemRepository.save(Mockito.any())).thenReturn(itemMapper.toItem(updatedItem));
+        when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(item);
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(owner);
+        ItemResponse returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
+        updatedItem.setAvailable(returnedItem.getAvailable());
         assertEquals(updatedItem, returnedItem);
     }
 

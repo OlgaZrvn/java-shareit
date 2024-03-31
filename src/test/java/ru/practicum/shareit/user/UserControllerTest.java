@@ -57,7 +57,22 @@ class UserControllerTest {
     }
 
     @Test
-    public void shouldNotSaveNewUser() throws Exception {
+    public void shouldNotSaveUserWithInvalidEmail() throws Exception {
+        User user = new User(0L,"User1", "user");
+        UserDto userDto = new UserDto(0L, "User1", "user");
+        when(userService.saveUser(Mockito.any(User.class))).thenReturn(user);
+        when(userMapper.toUser(Mockito.any(UserDto.class))).thenReturn(user);
+        when(userMapper.toUserDto(Mockito.any(User.class))).thenReturn(userDto);
+        mvc.perform(post("/users")
+                        .content(mapper.writeValueAsString(user))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotSaveUserWithEmailNull() throws Exception {
         User user = new User(0L,"User1", null);
         UserDto userDto = new UserDto(0L, "User1", null);
         when(userService.saveUser(Mockito.any(User.class))).thenReturn(user);
