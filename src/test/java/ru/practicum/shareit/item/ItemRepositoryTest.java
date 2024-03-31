@@ -74,20 +74,6 @@ class ItemRepositoryTest {
         assertEquals(1, items.size());
     }
 
- /*   @Test
-    void findByRequestIdIn() {
-        User user = new User("user@ya.ru", "User1");
-        userRepository.save(user);
-        ItemRequest request = new ItemRequest("Request1", user, LocalDateTime.now());
-        itemRequestRepository.save(request);
-        Item item = new Item(0L, "Item1", "Desc1", true, user, request);
-        itemRepository.save(item);
-        List<Item> items = itemRepository.findByRequestId(request.getId());
-        assertEquals(1, items.size());
-    }
-
-  */
-
     @Test
     void searchItems() {
         User user = new User("user@ya.ru", "User1");

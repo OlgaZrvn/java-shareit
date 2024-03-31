@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemMapperNew;
@@ -104,32 +106,39 @@ class ItemRequestServiceTest {
                 user.getId(), -1, -1));
     }
 
-   /* @Test
+    @Test
     void shouldFind2ItemRequest() {
         List<ItemRequest> requests = List.of(
                 generator.nextObject(ItemRequest.class),
                 generator.nextObject(ItemRequest.class)
         );
-        List<Item> items = List.of(
-                generator.nextObject(Item.class),
-                generator.nextObject(Item.class)
-        );
+
         List<ItemRequestResponse> itemRequestResponses = requests
                 .stream()
                 .map(ItemRequestMapperNew::toItemRequestResponse)
                 .collect(Collectors.toList());
 
-        PageRequest page = PageRequest.of(0, 10, Sort.by(DESC, "created"));
-        Page<ItemRequest> itemRequestList =
-        when(repository.findAllByRequestorIdNotOrderByCreatedDesc(Mockito.anyLong(), Mockito.any(PageRequest.class)))
-                .thenReturn();
+        Page<ItemRequest> itemRequestList = new PageImpl<>(requests);
+        when(repository.findAllByRequestorIdNotOrderByCreatedDesc(Mockito.anyLong(), Mockito.any()))
+                .thenReturn(itemRequestList);
+
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
+
+        List<Item> items = List.of(
+                generator.nextObject(Item.class),
+                generator.nextObject(Item.class)
+        );
+
+        ItemRequestResponse savedRequest = ItemRequestMapperNew.toItemRequestResponse(itemRequest);
+        savedRequest.setItems(items
+                .stream()
+                .map(ItemMapperNew::toItemDto)
+                .collect(Collectors.toList()));
 
         List<ItemRequestResponse> returnedRequests =
                 itemRequestService.getAllItemRequests(user.getId(), 0, 10);
         assertEquals(itemRequestResponses.size(), returnedRequests.size());
     }
-
-    */
 
     @Test
     void shouldNotFindItemRequestByIdWithoutUser() {

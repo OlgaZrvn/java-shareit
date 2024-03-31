@@ -6,7 +6,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
@@ -18,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class ItemRequestRepositoryTest {
 
-    private List<User> users = null;
-    private List<Item> items = null;
     @Autowired
     private UserRepository userRepository;
     @Autowired

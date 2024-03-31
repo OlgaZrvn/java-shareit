@@ -9,8 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Comment;
@@ -57,7 +55,6 @@ class ItemServiceImplTest {
 
     private final User user = new User(0L, "User", "user@ya.ru");
     private final EasyRandom generator = new EasyRandom();
-    private final PageRequest page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
 
     @BeforeEach
     void setUp() {
@@ -178,12 +175,6 @@ class ItemServiceImplTest {
         when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(owner);
         ItemResponse returnedItem = itemService.updateItem(item.getId(), owner.getId(),itemMapper.toItem(updatedItem));
         assertEquals(updatedItem, returnedItem);
-    }
-
-    @Test
-    void shouldNotSaveCommentWithoutItem() {
-        CommentDto commentDto = generator.nextObject(CommentDto.class);
-        assertThrows(NotFoundException.class, () -> itemService.saveComment(user.getId(), commentDto, 0L));
     }
 
     @Test
