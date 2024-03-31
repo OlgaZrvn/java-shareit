@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserService;
@@ -26,9 +25,6 @@ class ItemServiceImplIntegrationTest {
 
     @Autowired
     ItemMapper itemMapper;
-
-    @Autowired
-    CommentMapper commentMapper;
 
     @Autowired
     BookingMapper bookingMapper;
