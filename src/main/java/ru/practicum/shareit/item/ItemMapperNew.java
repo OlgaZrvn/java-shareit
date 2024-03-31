@@ -27,7 +27,7 @@ public class ItemMapperNew {
         );
     }
 
-    public static ItemResponse toItemResponse(Item item) {
+  /*  public static ItemResponse toItemResponse(Item item) {
         return new ItemResponse(
                 item.getId(),
                 item.getName(),
@@ -36,6 +36,8 @@ public class ItemMapperNew {
                 item.getRequest() != null ? item.getRequest().getId() : null
         );
     }
+
+   */
 
     public static Item toItem(ItemResponse itemResponse) {
         return new Item(

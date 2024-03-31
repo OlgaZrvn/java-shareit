@@ -10,8 +10,6 @@ public interface ItemMapper {
 
     Item toItem(ItemDto itemDto);
 
-    ItemDto toItemDto(Item item);
-
     Item toItem(ItemResponse itemResponse);
 
     ItemResponse toItemResponse(Item item);

@@ -22,6 +22,7 @@ import ru.practicum.shareit.item.model.Item;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -61,6 +62,72 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.description").value(itemResponse.getDescription()))
                 .andExpect(jsonPath("$.available").value(itemResponse.getAvailable()))
                 .andExpect(jsonPath("$.owner").value(itemResponse.getOwner()));
+    }
+
+    @Test
+    public void shouldNotSaveItemWithoutName() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
+        when(itemService.saveItem(Mockito.anyLong(), Mockito.any(ItemDto.class))).thenReturn(itemResponse);
+        Item item = ItemMapperNew.toItem(itemResponse);
+        ItemDto itemDto = ItemMapperNew.toItemDto(item);
+        itemDto.setName(null);
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotSaveItemWithoutDescription() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
+        when(itemService.saveItem(Mockito.anyLong(), Mockito.any(ItemDto.class))).thenReturn(itemResponse);
+        Item item = ItemMapperNew.toItem(itemResponse);
+        ItemDto itemDto = ItemMapperNew.toItemDto(item);
+        itemDto.setDescription(null);
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotSaveItemWithoutStatus() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
+        when(itemService.saveItem(Mockito.anyLong(), Mockito.any(ItemDto.class))).thenReturn(itemResponse);
+        Item item = ItemMapperNew.toItem(itemResponse);
+        ItemDto itemDto = ItemMapperNew.toItemDto(item);
+        itemDto.setAvailable(null);
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 0))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotSaveItemWithoutHeader() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
+        when(itemService.saveItem(Mockito.anyLong(), Mockito.any(ItemDto.class))).thenReturn(itemResponse);
+        Item item = ItemMapperNew.toItem(itemResponse);
+        ItemDto itemDto = ItemMapperNew.toItemDto(item);
+        mvc.perform(post("/items")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -117,6 +184,25 @@ class ItemControllerTest {
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 0))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void shouldGetItemsSearched() throws Exception {
+        List<Item> items = List.of(
+                generator.nextObject(Item.class),
+                generator.nextObject(Item.class));
+
+        when(itemService.searchItems(Mockito.anyString(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(items);
+
+        mvc.perform(get("/items/search")
+                        .param("text", "text")
+                        .param("from", "0")
+                        .param("size", "20")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)));
     }
 
     @Test

@@ -32,13 +32,15 @@ public class ItemRequestMapperNew {
                 request.getCreated());
     }
 
-    public static ItemRequest toItemRequest(ItemRequestResponse request) {
+ /*   public static ItemRequest toItemRequest(ItemRequestResponse request) {
         return new ItemRequest(
                 request.getId(),
                 request.getDescription(),
                 null,
                 LocalDateTime.now());
     }
+
+  */
 
     public static ItemRequestResponse toItemRequestResponse(ItemRequest request) {
         Long requestorId = null;

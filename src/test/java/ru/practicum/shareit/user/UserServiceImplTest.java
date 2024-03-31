@@ -32,14 +32,14 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testSaveNewUser() {
+    void shouldSaveNewUser() {
         when(userRepository.save(Mockito.any())).thenReturn(user);
         User savedUser = userService.saveUser(user);
         assertEquals(user, savedUser);
     }
 
     @Test
-    void testGet2Users() {
+    void shouldGet2Users() {
         List<User> users = new ArrayList<>();
         User user1 = new User("User1", "user1@ya.ru");
         User user2 = new User("User2", "user2@ya.ru");
@@ -51,7 +51,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetUserById() {
+    void shouldGetUserById() {
         when(userRepository.save(Mockito.any())).thenReturn(user);
         userService.saveUser(user);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
@@ -60,12 +60,12 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testNotGetUserById() {
+    void shouldNotGetUserById() {
         assertThrows(NotFoundException.class, () -> userService.getUserById(0L));
     }
 
     @Test
-    void testUpdateUser() {
+    void shouldUpdateUser() {
         User updatedUser = new User("updatedUser@ya.ru", "UpdatedUser1");
         when(userRepository.save(Mockito.any())).thenReturn(updatedUser);
         Long id = userService.saveUser(user).getId();
@@ -74,7 +74,27 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testDeleteUser() {
+    void shouldUpdateUserWithoutName() {
+        User updatedUser = new User(0L, null, "updatedUser@ya.ru");
+        when(userRepository.save(Mockito.any())).thenReturn(updatedUser);
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(user);
+        User returnedUser = userService.updateUser(0L, updatedUser);
+        updatedUser.setName(user.getName());
+        assertEquals(updatedUser, returnedUser);
+    }
+
+    @Test
+    void shouldUpdateUserWithoutEmail() {
+        User updatedUser = new User(0L, "UpdatedUser", null);
+        when(userRepository.save(Mockito.any())).thenReturn(updatedUser);
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(user);
+        User returnedUser = userService.updateUser(0L, updatedUser);
+        updatedUser.setEmail(user.getEmail());
+        assertEquals(updatedUser, returnedUser);
+    }
+
+    @Test
+    void shouldDeleteUser() {
         when(userRepository.save(Mockito.any())).thenReturn(user);
         userService.saveUser(user);
         when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
@@ -83,10 +103,8 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testNotDeleteUserWithNoUser() {
+    void shouldNotDeleteUserWithoutUser() {
         assertThrows(NotFoundException.class, () -> userService.deleteUser(0L));
     }
-
-
 
 }
