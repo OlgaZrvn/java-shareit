@@ -73,6 +73,7 @@ class BookingControllerTest {
         Booking booking = bookingMapper.toBooking(bookingResponse);
         BookingDto bookingDto = bookingMapper.toBookingDto(booking);
         bookingDto.setItemId(bookingResponse.getItem().getId());
+        Booking booking1 = bookingMapper.toBooking(bookingDto);
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDto))
                         .characterEncoding(StandardCharsets.UTF_8)

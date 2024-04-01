@@ -154,6 +154,41 @@ class ItemControllerTest {
     }
 
     @Test
+    public void shouldNotUpdateItemWithoutHeader() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
+        itemResponse.setId(0L);
+        when(itemService.updateItem(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(Item.class)))
+                .thenReturn(itemResponse);
+        Item item = ItemMapperNew.toItem(itemResponse);
+        ItemDto itemDto = ItemMapperNew.toItemDto(item);
+        mvc.perform(patch("/items/0")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void shouldNotUpdateItemWithHeaderNull() throws Exception {
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
+        itemResponse.setId(0L);
+        when(itemService.updateItem(Mockito.anyLong(), Mockito.anyLong(), Mockito.any(Item.class)))
+                .thenReturn(itemResponse);
+        Item item = ItemMapperNew.toItem(itemResponse);
+        ItemDto itemDto = ItemMapperNew.toItemDto(item);
+        mvc.perform(patch("/items/0")
+                        .content(mapper.writeValueAsString(itemDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", "null"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void shouldGetItemById() throws Exception {
         mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         ItemResponse itemResponse = generator.nextObject(ItemResponse.class);
