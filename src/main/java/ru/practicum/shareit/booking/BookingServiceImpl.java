@@ -2,10 +2,11 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponse;
 import ru.practicum.shareit.booking.model.Booking;
@@ -20,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,8 +36,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingResponse saveBooking(Long userId, BookingDto bookingDto, BindingResult bindingResult) {
-        validation(bindingResult);
+    public BookingResponse saveBooking(Long userId, BookingDto bookingDto) {
         Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(() ->
                 new NotFoundException("Товар не найден"));
         isAvailable(item);
@@ -83,80 +85,83 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingResponse> getAllBookings(Long userId, State state) {
+    public List<BookingResponse> getAllBookings(Long userId, State state, Integer from, Integer size) {
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Неверный from или size");
+        }
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(DESC, "start"));
         userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        List<Booking> bookingList;
+        Page<Booking> bookingList;
         switch (state) {
             case ALL:
-                bookingList = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                bookingList = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page);
                 break;
             case CURRENT:
                 bookingList = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId,
                         LocalDateTime.now(),
-                        LocalDateTime.now());
+                        LocalDateTime.now(),
+                        page);
                 break;
             case PAST:
                 bookingList = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(),
+                        page);
                 break;
             case FUTURE:
                 bookingList = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,
-                        LocalDateTime.now());
+                        LocalDateTime.now(),
+                        page);
                 break;
             case WAITING:
-                bookingList = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
+                bookingList = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING, page);
                 break;
             case REJECTED:
-                bookingList = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
+                bookingList = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED, page);
                 break;
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
+        log.info("Получен список всех бронирований");
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingResponse> getAllBookingByItemOwner(Long userId, State state) {
+    public List<BookingResponse> getAllBookingByItemOwner(Long userId, State state, Integer from, Integer size) {
+        if (from < 0 || size < 0) {
+            throw new ValidationException("Неверный from или size");
+        }
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(DESC, "start"));
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
-        List<Booking> bookingList;
+        Page<Booking> bookingList;
         switch (state) {
             case ALL:
-                bookingList = bookingRepository.findAllByItemOwnerOrderByStartDesc(user);
+                bookingList = bookingRepository.findAllByItemOwnerOrderByStartDesc(user, page);
                 break;
             case CURRENT:
                 bookingList = bookingRepository.findAllByItemOwnerAndStartBeforeAndEndAfterOrderByStartDesc(user,
-                        LocalDateTime.now(), LocalDateTime.now());
+                        LocalDateTime.now(), LocalDateTime.now(), page);
                 break;
             case PAST:
-                bookingList = bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(user, LocalDateTime.now());
+                bookingList = bookingRepository.findAllByItemOwnerAndEndBeforeOrderByStartDesc(user,
+                        LocalDateTime.now(), page);
                 break;
             case FUTURE:
-                bookingList = bookingRepository.findAllByItemOwnerAndStartAfterOrderByStartDesc(user, LocalDateTime.now());
+                bookingList = bookingRepository.findAllByItemOwnerAndStartAfterOrderByStartDesc(user,
+                        LocalDateTime.now(), page);
                 break;
             case WAITING:
-                bookingList = bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(user, Status.WAITING);
+                bookingList = bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(user, Status.WAITING, page);
                 break;
             case REJECTED:
-                bookingList = bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(user, Status.REJECTED);
+                bookingList = bookingRepository.findAllByItemOwnerAndStatusOrderByStartDesc(user, Status.REJECTED, page);
                 break;
             default:
                 throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         }
+        log.info("Получен список всех бронирований пользователя с id {}", userId);
         return bookingList.stream().map(bookingMapper::toBookingResponse).collect(Collectors.toList());
-    }
-
-    public static void validation(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMsg.append(error.getField()).append(" - ")
-                        .append(error.getDefaultMessage()).append(";");
-            }
-            throw new ValidationException(errorMsg.toString());
-        }
     }
 
     public static void isAvailable(Item item) {
@@ -166,6 +171,18 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public static void checkBookingTime(BookingDto bookingDto) {
+        if (bookingDto.getStart() == null) {
+            throw new ValidationException("Время начала бронирования не может быть пустым");
+        }
+        if (bookingDto.getEnd() == null) {
+            throw new ValidationException("Время окончания бронирования не может быть пустым");
+        }
+        if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время начала бронирования не может быть в прошлом");
+        }
+        if (bookingDto.getEnd().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Время окончания бронирования не может быть в прошлом");
+        }
         if (bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new ValidationException("Время начала не может быть равно времени окончания бронирования");
         }

@@ -1,18 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import ru.practicum.shareit.request.ItemRequest;
-import ru.practicum.shareit.user.model.User;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-/**
- * TODO Sprint add-controllers.
- */
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDto {
@@ -23,6 +18,12 @@ public class ItemDto {
     private String description;
     @NotNull(message = "Статус не может быть пустым")
     private Boolean available;
-    private User owner;
-    private ItemRequest request;
+    private Long requestId;
+
+    public ItemDto(String name, String description, Boolean available, Long requestId) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.requestId = requestId;
+    }
 }

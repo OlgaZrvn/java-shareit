@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -30,5 +31,14 @@ public class Booking {
     private User booker;
     @Enumerated()
     private Status status;
+
+
+    public Booking(Long id, LocalDateTime start, LocalDateTime end, Item item, User booker) {
+        this.id = id;
+        this.start = start;
+        this.end = end;
+        this.item = item;
+        this.booker = booker;
+    }
 }
 

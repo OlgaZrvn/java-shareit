@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -14,16 +16,17 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentResponse;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.ItemBooking;
-import ru.practicum.shareit.item.dto.ItemResponse;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Slf4j
@@ -34,24 +37,34 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
-    private final CommentMapperNew commentMapper;
+
 
     @Override
     @Transactional
-    public ItemResponse saveItem(Long userId, Item item) {
+    public ItemResponse saveItem(Long userId, ItemDto itemDto) {
         log.info("Проверяем пользователя с id {}", userId);
         User owner = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
+        Item item = itemMapper.toItem(itemDto);
         item.setOwner(owner);
+        ItemResponse itemResponse = itemMapper.toItemResponse(itemRepository.save(item));
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(itemRequestRepository.getReferenceById(itemDto.getRequestId()));
+            itemResponse.setRequestId(itemDto.getRequestId());
+        }
         log.info("Создан новый товар {}", item.getName());
-        return itemMapper.toItemResponse(itemRepository.save(item));
+        return itemResponse;
     }
 
     @Override
-    public List<ItemResponse> getAllItemsUser(Long userId) {
-        return itemRepository.findByOwnerId(userId).stream().map(x ->
-                getItemById(x.getId(), userId)).collect(Collectors.toList());
+    public List<ItemResponse> getAllItemsUser(Long userId, Integer from, Integer size) {
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
+        return itemRepository.findByOwnerId(userId, page)
+                .stream()
+                .map(x -> getItemById(x.getId(), userId))
+                .collect(toList());
     }
 
     @Override
@@ -64,18 +77,21 @@ public class ItemServiceImpl implements ItemService {
         if (user.getId().equals(item.getOwner().getId())) {
             addLastAndNextBooking(itemResponse, userId);
         }
+        if (item.getRequest() != null) {
+            itemResponse.setRequestId(item.getRequest().getId());
+        }
         List<Comment> commentList = commentRepository.findByItemId(itemId);
         itemResponse.setComments(commentList
                 .stream()
-                .map(commentMapper::toCommentResponse)
-                .collect(Collectors.toList()));
+                .map(CommentMapperNew::toCommentResponse)
+                .collect(toList()));
         return itemResponse;
     }
 
     @Override
     @Transactional
     public ItemResponse updateItem(Long itemId, Long userId, Item item) {
-        User owner = userRepository.findById(userId).orElseThrow(() ->
+        userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException("Пользователь с id " + userId + " не найден"));
         checkOwner(userId, itemId);
         ItemResponse updatedItem = getItemById(itemId, userId);
@@ -100,13 +116,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> searchItems(String string) {
+    public List<Item> searchItems(String string, Integer from, Integer size) {
+        PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
         if (string.isBlank()) {
             return new ArrayList<>();
         } else {
-            return itemRepository.searchItems(string.toUpperCase())
+            return itemRepository.searchItems(string.toUpperCase(), page)
                     .stream()
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
     }
 
@@ -135,9 +152,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentResponse saveComment(Long userId, CommentDto commentDto, Long itemId) {
-        if (commentDto.getText().isBlank() || commentDto.getText() == null) {
-            throw new ValidationException("Текст комментария не может быть пустым");
-        }
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Товар с id " + itemId + " не найден"));
         User user = userRepository.findById(userId).orElseThrow(() ->
@@ -145,19 +159,18 @@ public class ItemServiceImpl implements ItemService {
         bookingRepository.findFirstByBookerIdAndItemIdAndEndBefore(userId, itemId, LocalDateTime.now())
                 .orElseThrow(() -> new ValidationException("Пользователь с id " + userId +
                         " ещё не брал в аренду этот товар"));
-        if (item.getOwner().getId().equals(userId)) {
-            throw new ValidationException("Пользователь с id " + userId + " является владельцем");
-        }
         Comment comment = new Comment();
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setText(commentDto.getText());
         comment.setCreated(LocalDateTime.now());
+        commentRepository.save(comment);
+        CommentResponse commentResponse = CommentMapperNew.toCommentResponse(comment);
         log.info("Добавлен отзыв");
-        return commentMapper.toCommentResponse(commentRepository.save(comment));
+        return commentResponse;
     }
 
-    private void checkOwner(Long userId, Long itemId) {
+    void checkOwner(Long userId, Long itemId) {
         if (!userRepository.getReferenceById(userId).equals(itemRepository.getReferenceById(itemId).getOwner())) {
             log.error("Пользователь {} не явлеется владельцем товара {}",
                     userRepository.getReferenceById(userId).getName(),
