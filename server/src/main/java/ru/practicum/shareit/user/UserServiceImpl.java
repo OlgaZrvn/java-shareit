@@ -60,15 +60,8 @@ class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
-        checkUser(id);
+        getUserById(id);
         log.info("Пользователь {} удален", getUserById(id).getName());
         repository.delete(getUserById(id));
-    }
-
-    private void checkUser(Long id) {
-        if (null == getUserById(id)) {
-            log.error("Пользователь не найден");
-            throw new NotFoundException("Пользователь не найден");
-        }
     }
 }

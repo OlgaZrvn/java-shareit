@@ -81,7 +81,9 @@ class ItemRequestControllerTest {
                 generator.nextObject(ItemRequestResponse.class));
         when(itemRequestService.getAllItemRequests(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyInt()))
                 .thenReturn(requests);
-        mvc.perform(get("/requests")
+        mvc.perform(get("/requests/all")
+                        .param("from", "0")
+                        .param("size", "20")
                         .header("X-Sharer-User-Id", 0))
                 .andExpect(status().isOk());
     }

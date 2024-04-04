@@ -29,8 +29,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ItemRequestResponse>> getAllItemRequests(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                        @RequestParam(defaultValue = "0") Integer from,
-                                                                        @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                                                        @RequestParam Integer from,
+                                                                        @RequestParam Integer size) {
         return ResponseEntity.ok().body(itemRequestService.getAllItemRequests(userId, from, size));
     }
 

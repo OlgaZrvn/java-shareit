@@ -104,7 +104,10 @@ class UserServiceImplTest {
 
     @Test
     void shouldNotDeleteUserWithoutUser() {
-        assertThrows(NotFoundException.class, () -> userService.deleteUser(0L));
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> userService.deleteUser(0L));
+        assertEquals("Пользователь с id " + 0L + " не найден", exception.getMessage());
     }
 
 }
