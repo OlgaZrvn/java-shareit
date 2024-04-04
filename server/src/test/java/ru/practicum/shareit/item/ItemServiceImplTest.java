@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.comment.Comment;
 import ru.practicum.shareit.comment.CommentRepository;
@@ -150,6 +151,40 @@ class ItemServiceImplTest {
         ItemResponse itemResponse = new ItemResponse(
                 item.getId(), item.getName(), item.getDescription(), item.getAvailable(), user.getId());
         itemResponse.setOwner(user);
+
+        List<Comment> commentList = List.of(
+                generator.nextObject(Comment.class),
+                generator.nextObject(Comment.class)
+        );
+        when(commentRepository.findByItemId(Mockito.anyLong())).thenReturn(commentList);
+
+        ItemResponse returnedItem = itemService.getItemById(item.getId(), user.getId());
+        assertEquals(itemResponse.getId(), returnedItem.getId());
+    }
+
+    @Test
+    void shouldFindItemByIdWithLastAndNextBooking() {
+        Item item = generator.nextObject(Item.class);
+        when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(item));
+        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.ofNullable(user));
+        ItemResponse itemResponse = new ItemResponse(
+                item.getId(), item.getName(), item.getDescription(), item.getAvailable(), user.getId());
+        itemResponse.setOwner(user);
+        user.setId(item.getOwner().getId());
+
+        Booking lastBooking = generator.nextObject(Booking.class);
+        Booking nextBooking = generator.nextObject(Booking.class);
+        when(bookingRepository.findFirstByItemIdAndItemOwnerIdAndStartBeforeAndStatusOrderByStartDesc(
+                        Mockito.anyLong(),
+                        Mockito.anyLong(),
+                        Mockito.any(LocalDateTime.class),
+                        Mockito.any(Status.class))).thenReturn(lastBooking);
+
+        when(bookingRepository.findFirstByItemIdAndItemOwnerIdAndStartAfterAndStatusOrderByStartAsc(
+                Mockito.anyLong(),
+                Mockito.anyLong(),
+                Mockito.any(LocalDateTime.class),
+                Mockito.any(Status.class))).thenReturn(nextBooking);
 
         List<Comment> commentList = List.of(
                 generator.nextObject(Comment.class),
