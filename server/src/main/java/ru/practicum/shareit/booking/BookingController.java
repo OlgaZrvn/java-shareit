@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponse;
+import ru.practicum.shareit.booking.dto.State;
 
 import java.util.List;
 
@@ -36,17 +37,17 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getAllBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                @RequestParam(defaultValue = "ALL") State state,
-                                                                @RequestParam(defaultValue = "0") Integer from,
-                                                                @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                                                @RequestParam State state,
+                                                                @RequestParam Integer from,
+                                                                @RequestParam Integer size) {
         return ResponseEntity.ok().body(bookingService.getAllBookings(userId, state, from, size));
     }
 
     @GetMapping("/owner")
     public ResponseEntity<List<BookingResponse>> getAllBookingByItemOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                          @RequestParam(defaultValue = "ALL") State state,
-                                                                          @RequestParam(defaultValue = "0") Integer from,
-                                                                          @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                                                          @RequestParam State state,
+                                                                          @RequestParam Integer from,
+                                                                          @RequestParam Integer size) {
         return ResponseEntity.ok().body(bookingService.getAllBookingByItemOwner(userId, state, from, size));
     }
 }

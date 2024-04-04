@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingResponse;
+import ru.practicum.shareit.booking.dto.State;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -381,13 +382,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void shouldGetAllBookingWithStatusUnknown() {
-        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
-        assertThrows(ValidationException.class, () ->
-                bookingService.getAllBookings(user.getId(), State.UNSUPPORTED_STATUS, 0, 10));
-    }
-
-    @Test
     void shouldNotGetAllBookingByOwnerWithNegativeFrom() {
         assertThrows(ValidationException.class, () ->
                 bookingService.getAllBookingByItemOwner(user.getId(), State.ALL, -1, 1));
@@ -494,12 +488,5 @@ class BookingServiceImplTest {
         List<BookingResponse> bookingList =
                 bookingService.getAllBookingByItemOwner(user.getId(), State.REJECTED, 0, 10);
         assertEquals(2, bookingList.size());
-    }
-
-    @Test
-    void shouldGetAllBookingByOwnerWithStatusUnknown() {
-        when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
-        assertThrows(ValidationException.class, () ->
-                bookingService.getAllBookingByItemOwner(user.getId(), State.UNSUPPORTED_STATUS, 0, 10));
     }
 }
