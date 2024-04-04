@@ -6,9 +6,6 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Getter
 @Setter
 @ToString
@@ -27,10 +24,4 @@ public class ItemRequest {
     private User requestor;
     private LocalDateTime created;
 
-
-    public ItemRequest(String description, User requestor, LocalDateTime created) {
-        this.description = description;
-        this.requestor = requestor;
-        this.created = created;
-    }
 }

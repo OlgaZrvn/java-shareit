@@ -51,6 +51,7 @@ class BookingControllerTest {
 
         Booking booking = bookingMapper.toBooking(bookingResponse);
         BookingDto bookingDto = bookingMapper.toBookingDto(booking);
+        BookingResponse bookingResponse1 = bookingMapper.toBookingResponse(booking);
         bookingDto.setItemId(bookingResponse.getItem().getId());
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDto))
